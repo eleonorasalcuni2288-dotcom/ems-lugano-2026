@@ -105,7 +105,10 @@ Benjamini–Hochberg correction (see Methodology):
   rank 1–3 on the synergy pair at every p (τ 0.370→0.466→0.420); II-joint
   detects it well at low p but collapses to rank 22–70 at p=105; MI-joint
   (Kraskov) degenerates entirely at p≥50; per-feature MI/II never detect
-  it at any p (rank 21–88, by construction). Random Forest has the
+  it at any p (rank 21–88, by construction) — confirmed not an artefact of
+  MI's own `n_neighbors` default (3): varying it over [3,5,7,10] at p=27
+  leaves the XOR pair stuck at rank 21–26 throughout, with the rest of the
+  ranking stable (τ 0.89–0.90 agreement with the default). Random Forest has the
   strongest raw ranking accuracy of any method (τ up to 0.50, CI never
   crossing zero) but never ranks the synergy pair above 14th, and dilutes
   importance across near-duplicate features (23% concentration on the
@@ -157,7 +160,8 @@ feature_selection_analysis/
 │   │                                        #   reused by MINE and RF above, not purely historical)
 │   ├── infonce_synthetic_highdim.py        # InfoNCE p=50/105 extension (written, never completed)
 │   ├── validate_downstream_synthetic.py    # sanity check: ranking-by-accuracy vs ranking-by-tau
-│   └── dii_diagnostics.py                  # DII+L1 sensitivity: L1-strength sweep + cross-seed check
+│   ├── dii_diagnostics.py                  # DII+L1 sensitivity: L1-strength sweep + cross-seed check
+│   └── mi_diagnostics.py                   # MI sensitivity: n_neighbors sweep + cross-seed check
 │
 ├── fredmd/                    # macro-financial, N=794, p=120
 │   ├── 2026-07-MD.csv         # raw FRED-MD panel
