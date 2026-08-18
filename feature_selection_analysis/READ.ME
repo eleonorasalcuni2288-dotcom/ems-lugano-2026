@@ -113,7 +113,14 @@ Benjamini–Hochberg correction (see Methodology):
   every p (τ −0.081 to 0.073) and its own synergy detection collapses
   most abruptly of all methods, from rank ~2 to ~89 between p=50 and
   p=105, consistent with the modest sample size relative to what neural
-  MI estimators typically require.
+  MI estimators typically require. A dedicated hyperparameter check on
+  DII+L1 itself (mirroring RF's n_estimators test and MINE's convergence
+  check) shows XOR-pair detection unchanged (rank 1–2) across l1_strength
+  in [0.05, 0.20], though overall τ trends down as L1 grows (0.35 at the
+  project's l1=0.10 to 0.25 at l1=0.20, ranking agreement τ 0.74–0.90
+  vs. l1=0.10); across 3 random seeds at l1=0.10, results are identical
+  (std=0.000) — DII's training here is full-batch (`batches_per_epoch=1`)
+  and effectively deterministic, not stochastic the way MINE's is.
 - **Trading**: DII+L1's bootstrap CI excludes zero at K=10 (+0.019
   [0.011, 0.026]) and K=16 (+0.016 [0.011, 0.026]), and II per-feature at
   K=3 — but **none of these survive BH correction** for the dataset's 16
@@ -149,7 +156,8 @@ feature_selection_analysis/
 │   ├── infonce_synthetic.py                # InfoNCE, p=27 (also defines init_mlp/mlp_apply,
 │   │                                        #   reused by MINE and RF above, not purely historical)
 │   ├── infonce_synthetic_highdim.py        # InfoNCE p=50/105 extension (written, never completed)
-│   └── validate_downstream_synthetic.py    # sanity check: ranking-by-accuracy vs ranking-by-tau
+│   ├── validate_downstream_synthetic.py    # sanity check: ranking-by-accuracy vs ranking-by-tau
+│   └── dii_diagnostics.py                  # DII+L1 sensitivity: L1-strength sweep + cross-seed check
 │
 ├── fredmd/                    # macro-financial, N=794, p=120
 │   ├── 2026-07-MD.csv         # raw FRED-MD panel
