@@ -68,18 +68,16 @@ N_RANDOM_BASELINE = 100  # kept at 100 (same as FRED-MD/MI-complications) —
                           # would break protocol-comparability with the
                           # other two real datasets. Not touched.
 
-# REVISED after two failed attempts. The real bottleneck, found by proper
-# calibration (measuring a FULL draw: ranking + the downstream K-loop's
-# 4*(1+N_RANDOM_BASELINE)=404 knn_loo_accuracy calls), is 72.3s/draw for
-# even the "cheap" MI_perfeat — not the ~0.1s the original calibration
-# measured, because that only timed the ranking step and ignored the
-# downstream evaluation cost, which dominates and is roughly SHARED across
-# all 4 methods (N=5000 here vs N=794 for FRED-MD makes knn_loo_accuracy's
-# O(N^2) pairwise-distance cost ~40x more expensive). B_CHEAP is lowered to
-# match, rather than reducing N_RANDOM_BASELINE (see above) — this widens
-# the CI honestly (less resolution) instead of distorting it.
-B_CHEAP = 12
-B_DII = 8
+# FULL-RIGOR RUN: B_CHEAP=100, B_DII=15, matching FRED-MD/MI-complications
+# exactly. A first pass at B_CHEAP=12/B_DII=8 (~71 min) already produced a
+# usable, unbiased-but-coarser CI for the poster (see bootstrap_ci_trading_
+# results.csv history) — this run replaces it with the same resolution as
+# the other two real datasets, for the paper version. Estimated ~7h given
+# the observed ~72-76s/draw for MI_perfeat/II_perfeat/II_joint (N=5000 makes
+# knn_loo_accuracy's O(N^2) cost ~40x more expensive than FRED-MD's N=794)
+# and ~198s/draw for DII_L1.
+B_CHEAP = 100
+B_DII = 15
 
 
 def load_trading():
