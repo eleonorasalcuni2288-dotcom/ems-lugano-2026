@@ -42,10 +42,10 @@ PURPLE = '#7D3C98'
 TEAL = '#138D8D'
 
 COLORS = {'MI_perfeat': ACCENT, 'II_perfeat': GREEN, 'II_joint': ORANGE, 'DII_L1': RED,
-          'MINE': PURPLE, 'RF': TEAL}
+          'MINE': PURPLE, 'RF': TEAL, 'LASSO': NAVY}
 LABELS = {'MI_perfeat': 'MI (per-feature)', 'II_perfeat': 'II (per-feature)',
           'II_joint': 'II (joint, LOO)', 'DII_L1': 'DII + L1',
-          'MINE': 'MINE', 'RF': 'Random Forest'}
+          'MINE': 'MINE', 'RF': 'Random Forest', 'LASSO': 'LASSO'}
 
 
 
@@ -65,7 +65,8 @@ boot_27['p'] = 27
 boot_highdim = pd.read_csv('../synthetic/bootstrap_ci_synthetic_highdim_results.csv')
 boot_mine = pd.read_csv('../synthetic/mine_synthetic_highdim_results.csv')
 boot_rf = pd.read_csv('../synthetic/rf_synthetic_highdim_results.csv')
-boot_all = pd.concat([boot_27, boot_highdim, boot_mine, boot_rf], ignore_index=True)
+boot_lasso = pd.read_csv('../synthetic/lasso_synthetic_highdim_results.csv')
+boot_all = pd.concat([boot_27, boot_highdim, boot_mine, boot_rf, boot_lasso], ignore_index=True)
 
 point_orig = pd.read_csv('../synthetic/simulation_study_v6_highdim_scalability.csv')[
     ['p', 'method', 'tau', 'syn_rank_1', 'syn_rank_2']]
@@ -75,17 +76,20 @@ mine_pts['method'] = 'MINE'
 rf_pts = pd.read_csv('../synthetic/rf_synthetic_highdim_point_estimates.csv') \
     .drop_duplicates('p')[['p', 'tau', 'syn_rank_1', 'syn_rank_2']]
 rf_pts['method'] = 'RF'
-point_df = pd.concat([point_orig, mine_pts, rf_pts], ignore_index=True)
+lasso_pts = pd.read_csv('../synthetic/lasso_synthetic_highdim_point_estimates.csv') \
+    .drop_duplicates('p')[['p', 'tau', 'syn_rank_1', 'syn_rank_2']]
+lasso_pts['method'] = 'LASSO'
+point_df = pd.concat([point_orig, mine_pts, rf_pts, lasso_pts], ignore_index=True)
 
 p_levels = [27, 50, 105]
 methods = ['MI_perfeat', 'II_perfeat', 'II_joint', 'DII_L1']  # used by Figures 2 & 3
-methods_fig1 = methods + ['MINE', 'RF']  # Figure 1 only (fuller method coverage)
+methods_fig1 = methods + ['MINE', 'RF', 'LASSO']  # Figure 1 only (fuller method coverage)
 
 fig, axes = plt.subplots(1, 2, figsize=(17, 4.2))
 
 ax = axes[0]
-offsets = {'MI_perfeat': -3.5, 'II_perfeat': -2.1, 'II_joint': -0.7,
-           'DII_L1': 0.7, 'MINE': 2.1, 'RF': 3.5}
+offsets = {'MI_perfeat': -3.6, 'II_perfeat': -2.4, 'II_joint': -1.2,
+           'DII_L1': 0, 'MINE': 1.2, 'RF': 2.4, 'LASSO': 3.6}
 for method in methods_fig1:
     means, los, his, pts = [], [], [], []
     for p in p_levels:
@@ -127,7 +131,7 @@ ax.set_ylabel('Avg. rank of synergistic (XOR) pair\n(lower = correctly detected)
 ax.set_title('(b) Synergy-pair detection vs. dimensionality')
 
 fig.legend(legend_handles, legend_labels, loc='upper center',
-           bbox_to_anchor=(0.5, 1.14), ncol=6, frameon=False, fontsize=12)
+           bbox_to_anchor=(0.5, 1.14), ncol=7, frameon=False, fontsize=12)
 
 plt.tight_layout()
 plt.savefig('fig_scalability.pdf', bbox_inches='tight')

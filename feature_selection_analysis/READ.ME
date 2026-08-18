@@ -13,7 +13,7 @@ Feature selection methods can disagree substantially on which features
 matter most, and this disagreement is not merely noise: it reflects
 genuine differences in what each method measures (correlation, k-NN
 geometry, or a learned neural bound) and in how each scales with
-dimensionality. This project runs seven methods head-to-head under one
+dimensionality. This project runs eight methods head-to-head under one
 controlled experimental protocol:
 
 1. **Synthetic benchmark** (p=27/50/105, known ground-truth ranking
@@ -35,6 +35,7 @@ controlled experimental protocol:
 | **DII** (Differentiable Information Imbalance) | Gradient-optimised soft relaxation of II (softmax neighbourhoods), with L1 regularisation on feature weights for sparsity | joint, gradient-optimised |
 | **MINE** | Neural MI estimator, Donsker–Varadhan bound with bias-corrected (EMA) gradient | joint |
 | **RF** (Random Forest) | Permutation importance from a general-purpose ensemble model | joint |
+| **LASSO** | Linear model, L1-penalized; ranks by \|coefficient\| magnitude, alpha auto-selected via 5-fold CV | joint |
 
 **JMI** (greedy conditional-MI selection) was also run on the synthetic
 benchmark as a scalability reference, not as a competing ranking method:
@@ -108,7 +109,20 @@ Benjamini–Hochberg correction (see Methodology):
   it at any p (rank 21–88, by construction) — confirmed not an artefact of
   MI's own `n_neighbors` default (3): varying it over [3,5,7,10] at p=27
   leaves the XOR pair stuck at rank 21–26 throughout, with the rest of the
-  ranking stable (τ 0.89–0.90 agreement with the default). Random Forest has the
+  ranking stable (τ 0.89–0.90 agreement with the default). LASSO — the
+  classical sparse-regularized baseline conceptually closest to DII+L1,
+  both ranking via a sparsity-inducing penalty — is statistically
+  indistinguishable from DII+L1 on raw τ at every p (0.354 vs. 0.370 at
+  p=27, 0.417 vs. 0.466 at p=50, 0.422 vs. 0.420 at p=105; bootstrap CIs
+  overlap substantially throughout), but **never detects the synergy
+  pair** (rank 18–39 at p=27, worsening to 30–69 at p=105) — a linear
+  model structurally cannot represent a pure multiplicative/XOR
+  interaction without explicit interaction terms, which LASSO here does
+  not have. This sharpens what DII+L1's advantage actually is: not
+  superior *raw* ranking accuracy (LASSO and Random Forest are both
+  competitive there), but the ability to detect synergistic dependencies
+  that per-feature, linear, and tree-ensemble methods alike structurally
+  cannot see. Random Forest has the
   strongest raw ranking accuracy of any method (τ up to 0.50, CI never
   crossing zero) but never ranks the synergy pair above 14th, and dilutes
   importance across near-duplicate features (23% concentration on the
@@ -161,7 +175,9 @@ feature_selection_analysis/
 │   ├── infonce_synthetic_highdim.py        # InfoNCE p=50/105 extension (written, never completed)
 │   ├── validate_downstream_synthetic.py    # sanity check: ranking-by-accuracy vs ranking-by-tau
 │   ├── dii_diagnostics.py                  # DII+L1 sensitivity: L1-strength sweep + cross-seed check
-│   └── mi_diagnostics.py                   # MI sensitivity: n_neighbors sweep + cross-seed check
+│   ├── mi_diagnostics.py                   # MI sensitivity: n_neighbors sweep + cross-seed check
+│   └── lasso_synthetic_highdim.py          # LASSO baseline, p=27/50/105 (closest classical
+│                                            #   competitor to DII+L1: both rank via sparsity penalty)
 │
 ├── fredmd/                    # macro-financial, N=794, p=120
 │   ├── 2026-07-MD.csv         # raw FRED-MD panel

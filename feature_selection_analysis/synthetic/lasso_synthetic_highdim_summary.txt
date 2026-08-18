@@ -1,0 +1,14 @@
+LASSO — CLASSICAL SPARSE REGULARIZED REGRESSION BASELINE
+============================================================
+Total runtime: 1.7 min
+alpha: auto (LassoCV, 5-fold)  B_bootstrap=20
+
+--- POINT ESTIMATES (tau, XOR pair rank, selected alpha) ---
+  p=27   tau=0.388  XOR rank=(22,18)  alpha=0.0008  nonzero=23/27
+  p=50   tau=0.467  XOR rank=(39,21)  alpha=0.0025  nonzero=39/50
+  p=105  tau=0.414  XOR rank=(69,30)  alpha=0.0103  nonzero=32/105
+
+--- BOOTSTRAP CI (tau) ---
+  p=27   tau_mean=0.354  [0.241, 0.446]  (B=20)
+  p=50   tau_mean=0.417  [0.318, 0.521]  (B=20)
+  p=105  tau_mean=0.422  [0.308, 0.500]  (B=20)
