@@ -1,0 +1,17 @@
+RANDOM FOREST — GENERAL-PURPOSE ML COMPARISON
+============================================================
+Total runtime: 5.4 min
+n_estimators=100  n_repeats=10  B_bootstrap=20
+
+--- STOCHASTICITY CHECK (p=27, 3 seeds) ---
+  avg per-feature importance std across seeds: 0.00120
+
+--- POINT ESTIMATES (tau, XOR pair rank) ---
+  p=27   tau=0.339  XOR rank=(16,14)
+  p=50   tau=0.511  XOR rank=(18,19)
+  p=105  tau=0.414  XOR rank=(21,46)
+
+--- BOOTSTRAP CI (tau) ---
+  p=27   tau_mean=0.307  [0.256, 0.373]  (B=20)
+  p=50   tau_mean=0.496  [0.433, 0.561]  (B=20)
+  p=105  tau_mean=0.420  [0.359, 0.464]  (B=20)

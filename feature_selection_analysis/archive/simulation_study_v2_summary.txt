@@ -1,0 +1,25 @@
+
+SIMULATION STUDY v2 – SUMMARY
+================================
+N=2000 | 20 features | 13 directly informative
+3 latent AR signals (z1, z2, z3) | heteroskedastic noise
+
+Rank Correlation with Ground Truth (Kendall τ / Spearman ρ):
+  MI           τ=0.770  ρ=0.912
+  II           τ=0.663  ρ=0.842
+  DII + L1     τ=0.621  ρ=0.827
+  DII no L1    τ=0.611  ρ=0.815
+
+Top-K Precision:
+  Method           Top-3  Top-5  Top-8  Top-13
+  MI               1.00   1.00   1.00   0.92
+  II               1.00   1.00   1.00   0.92
+  DII + L1         1.00   1.00   1.00   0.85
+  DII no L1        1.00   1.00   1.00   0.85
+  Baseline         0.65
+
+Near-Duplicate Group E (copies of xA1) — LASSO effect:
+  Feature          DII+L1 weight   DII noL1 weight
+  xA1 (original)   0.1734          0.1739
+  xC3_cubic        0.1920          0.1913
+  xB1_quad         0.2511          0.2512

@@ -1,0 +1,59 @@
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    STATISTICAL COMPARISON RESULTS                          ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+1. INTRA-METHOD STABILITY (ANOVA)
+   ├─ F-statistic: 0.0000
+   ├─ P-value: 1.0000
+   └─ Result: No significant difference
+      → All methods have SIMILAR ranking variability
+
+2. INTER-METHOD CONCORDANCE (Kendall Tau)
+   ├─ II vs MI:  τ = -0.202, p = 0.146 ✓
+   ├─ II vs DII: τ = 0.100, p = 0.482 ✓
+   └─ MI vs DII: τ = 0.094, p = 0.508 ✓
+      → Weak concordance (τ < 0.3): Methods select DIFFERENT features
+
+3. TOP-K FEATURE AGREEMENT (Jaccard Index)
+   ├─ Top-5:  II-MI=0.0%, II-DII=11.1%
+   ├─ Top-10: II-MI=11.1%, II-DII=25.0%
+   └─ Top-15: II-MI=30.4%, II-DII=50.0%
+      → Agreement INCREASES for lower-ranked (less important) features
+
+4. FEATURE ROBUSTNESS (Z-score Analysis)
+   ├─ Most robust feature: sma_ratio_10
+   │  (Rank Variance: 0.33)
+   ├─ Shapiro-Wilk p-value: 0.0354
+   └─ Statistically significant robust features: 0
+      → sma_ratio_10 is the most consistent feature across all methods
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                          KEY CONCLUSIONS                                   ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+✓ FINDING 1: Methods have SIMILAR stability (p=1.000)
+  → No method is significantly more reliable than others
+
+✓ FINDING 2: Methods have WEAK concordance globally (τ<0.3, p>0.05)
+  → Methods rank features DIFFERENTLY
+  → This reflects COMPLEMENTARY perspectives, not disagreement
+
+✓ FINDING 3: Top-15 agreement — II-MI=30.4%, II-DII=50.0%, MI-DII=42.9%
+  → Moderate agreement on important features
+  → Disagreement increases for lower-ranked (marginal) features
+
+✓ FINDING 4: Most robust feature across all methods: sma_ratio_10 (Rank Variance: 0.33)
+  → Low rank variance indicates consistent importance across methods
+  → These robust features are candidates for downstream ML
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                      RECOMMENDATION                                        ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+Use CONSENSUS approach:
+1. Select features agreed by ≥2 methods
+2. Prioritize features with low rank variance
+3. This provides statistically robust feature selection
+
+No single method is superior. Their complementarity is their strength.

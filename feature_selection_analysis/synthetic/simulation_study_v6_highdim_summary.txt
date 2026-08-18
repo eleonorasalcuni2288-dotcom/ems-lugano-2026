@@ -1,0 +1,31 @@
+SIMULATION STUDY v6 — HIGH-DIMENSIONAL SCALABILITY SWEEP
+============================================================
+N=2000 | P_VALUES=[27, 50, 105] | JMI run only for p<=60
+
+--- p=27 ---
+  MI_perfeat   tau=0.275  top10=0.90  syn=(26,21)  runtime=0.1s
+  II_perfeat   tau=0.276  top10=0.90  syn=(24,23)  runtime=0.2s
+  JMI_greedy   tau=-0.009  top10=0.90  syn=(16,8)  runtime=23.8s
+  MI_joint     tau=0.265  top10=0.90  syn=(20,19)  runtime=3.9s
+  II_joint     tau=0.396  top10=0.90  syn=(1,2)  runtime=0.8s
+  DII_L1       tau=0.350  top10=1.00  syn=(1,2)  runtime=50.3s
+  DII_noL1     tau=0.282  top10=1.00  syn=(1,2)  runtime=49.0s
+
+--- p=50 ---
+  MI_perfeat   tau=0.497  top10=0.90  syn=(43,29)  runtime=0.2s
+  II_perfeat   tau=0.464  top10=0.90  syn=(41,33)  runtime=0.4s
+  JMI_greedy   tau=-0.062  top10=0.40  syn=(29,12)  runtime=505.7s
+  MI_joint     runtime=11.9s  [DEGENERATE (Kraskov MI estimator collapsed to 0 for every LOO fold)]
+  II_joint     tau=0.445  top10=0.80  syn=(2,1)  runtime=2.8s
+  DII_L1       tau=0.422  top10=1.00  syn=(1,3)  runtime=54.6s
+  DII_noL1     tau=0.434  top10=1.00  syn=(1,3)  runtime=53.6s
+
+--- p=105 ---
+  MI_perfeat   tau=0.464  top10=0.90  syn=(84,47)  runtime=0.3s
+  II_perfeat   tau=0.370  top10=0.90  syn=(88,66)  runtime=0.8s
+  JMI_greedy   runtime=nans  [SKIPPED (p > JMI_MAX_P, O(p^2) cost)]
+  MI_joint     runtime=39.6s  [DEGENERATE (Kraskov MI estimator collapsed to 0 for every LOO fold)]
+  II_joint     tau=0.451  top10=0.60  syn=(22,70)  runtime=13.9s
+  DII_L1       tau=0.472  top10=1.00  syn=(1,3)  runtime=123.1s
+  DII_noL1     tau=0.423  top10=1.00  syn=(1,3)  runtime=130.6s
+

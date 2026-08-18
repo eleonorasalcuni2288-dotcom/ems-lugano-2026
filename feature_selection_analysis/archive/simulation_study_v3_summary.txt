@@ -1,0 +1,19 @@
+
+SIMULATION STUDY v3 – SUMMARY
+================================
+Dataset: Daniele's design | N=2000 | 20 features | 12 informative
+3 latent AR signals (z1, z2, z3) | heteroskedastic noise | redundant features
+
+Rank Correlation with Ground Truth (Kendall τ / Spearman ρ):
+  MI           τ=0.398  ρ=0.551
+  II           τ=0.316  ρ=0.456
+  DII + L1     τ=0.453  ρ=0.618
+  DII no L1    τ=0.442  ρ=0.618
+
+Top-K Precision:
+  Method           Top-3  Top-5  Top-9  Top-12
+  MI               0.67   0.80   0.89   0.83
+  II               0.67   0.80   0.89   0.83
+  DII + L1         1.00   1.00   0.89   0.92
+  DII no L1        1.00   1.00   0.89   0.92
+  Baseline         0.60

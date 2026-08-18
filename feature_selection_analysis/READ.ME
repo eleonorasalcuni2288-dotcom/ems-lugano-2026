@@ -1,0 +1,264 @@
+# A Comparative Analysis of Feature Selection Methods
+
+Information Imbalance (II), Differentiable Information Imbalance (DII), and
+Mutual Information (MI) compared under a shared two-level fair-comparison
+framework, extended to MINE, Random Forest, and InfoNCE — evaluated on a
+synthetic benchmark with known ground truth and three independent real-world
+datasets. Prepared as a poster for a Bernoulli Society statistics conference.
+
+## Overview
+
+Feature selection methods disagree with each other more often than intuition
+suggests, and that disagreement is informative rather than noise: it reflects
+what each method is actually measuring (correlation, k-NN geometry, or a
+learned neural bound) and how each one scales with dimensionality. This
+project runs six methods head-to-head under one controlled experimental
+protocol:
+
+1. **Synthetic benchmark** (p=27/50/105, known ground-truth ranking including
+   a synergistic XOR-type feature pair invisible to per-feature methods) —
+   where "correct" is measurable directly.
+2. **Three real datasets** (FRED-MD macro-financial panel, MI-complications
+   clinical data, trading time series) — where there is no ground truth, so
+   methods are instead validated by whether their selected features actually
+   improve downstream k-NN classification accuracy over a random baseline,
+   with bootstrap-quantified uncertainty on that advantage.
+
+## Methods compared
+
+| Method | What it measures | Level(s) evaluated |
+|---|---|---|
+| **MI** (Mutual Information) | Statistical dependence, k-NN (Kraskov–Stögbauer–Grassberger) estimator | per-feature, joint |
+| **II** (Information Imbalance) | Rank-based nearest-neighbour geometry: II(X→Y) = (2/N²) Σᵢ rank_Y(NN_X(i)) | per-feature, joint (leave-one-out) |
+| **DII** (Differentiable Information Imbalance) | Gradient-optimized soft relaxation of II (softmax neighbourhoods), with L1 regularization on feature weights for sparsity | joint, gradient-optimized |
+| **MINE** | Neural MI estimator, Donsker–Varadhan bound with bias-corrected (EMA) gradient | joint |
+| **RF** (Random Forest) | Permutation importance from a general-purpose ML model | joint |
+| **InfoNCE** | Contrastive MI lower bound, softmax-based, capped at log(batch size) | joint (p=27 only, not bootstrapped) |
+
+JMI (greedy conditional-MI selection) was also run on the synthetic benchmark
+as a scalability reference: its O(p²) cost makes it intractable well before
+DII or the joint/gradient-based methods, which is itself part of the result.
+
+## Datasets
+
+| Dataset | N | p | Target | Role |
+|---|---|---|---|---|
+| Synthetic benchmark | 2,000 | 27 / 50 / 105 | continuous Y, known generative process incl. one XOR-type synergy pair | ground-truth check |
+| FRED-MD | 794 | 120 | S&P 500 monthly return, median-split binarized | independent real-data domain (macro-financial, high-dim) |
+| MI complications | 1,700 | 107 | any of 11 binary post-infarction complications | independent real-data domain (clinical, high-dim, no ground truth) |
+| Trading (`train2.csv`) | 5,000 (stratified subsample of 440,402) | 27 | native binary label | real-data domain, **not** high-dimensional — complementary, not a third high-dim confirmation |
+
+## Methodology
+
+- **Two-level fair comparison**: every method is evaluated both per-feature
+  (independent scores) and jointly (leave-one-out backward elimination, or
+  direct joint gradient optimization for DII), so no method is compared
+  per-feature against another's joint result.
+- **Bootstrap CI**: 80% subsampling *without* replacement (not classic
+  with-replacement bootstrap — chosen to avoid zero-distance duplicate-
+  neighbour artifacts in the distance-based methods, II and DII), ranking
+  recomputed from scratch on every draw.
+- **Ground-truth-free downstream validation** (the 3 real datasets): k-NN
+  leave-one-out balanced accuracy using each method's top-K features,
+  compared against K random features (n=100 random draws), reported as an
+  accuracy advantage with a bootstrap 95% CI. An advantage is called
+  *robust* only if its CI excludes zero.
+- **Multiple-testing correction**: MI complications tests 11 complications ×
+  4 methods × 4 K values (176 tests); Benjamini–Hochberg correction leaves 7
+  survivors, of which only 3 are *also* bootstrap-robust — BH significance
+  and CI-excludes-zero robustness do not always agree, which is reported
+  honestly rather than picking whichever criterion looks stronger.
+
+## Key findings
+
+**DII+L1 is the only method with a robust downstream advantage in all four
+datasets** — the closest thing to a consistent winner across domains:
+
+- **Synthetic**: DII+L1 has the highest bootstrap-mean τ at p=27 (0.370
+  [0.302, 0.446]) and stays within rank 1–3 of the known XOR synergy pair at
+  every p. MI_joint degenerates (Kraskov estimator collapses to 0) at
+  p≥50; JMI becomes computationally intractable above p=27; II_joint's XOR
+  detection collapses to rank ~22–70 at p=105.
+- **FRED-MD**: DII+L1 robust at all 4 K (advantage +0.075 to +0.097); MI
+  per-feature robust only at K=5,10; II (per-feature and joint) shows no
+  significant signal at any K.
+- **MI complications**: of 7 BH survivors, only 3 are also bootstrap-robust
+  — all involving the ZSN (cardiac) complication, via MI per-feature
+  (K=3, K=5) and DII+L1 (K=16).
+- **Trading**: DII+L1 robust at K=10 (+0.019 [0.011, 0.026]) and K=16
+  (+0.016 [0.011, 0.026]); the only other robust result is II per-feature at
+  K=3. MI per-feature shows essentially no signal.
+
+**Extended methods, evaluated on the synthetic benchmark only:**
+- **RF** has the best raw ranking accuracy of any method (bootstrap τ up to
+  0.50, CI never crosses zero) but **never detects the XOR synergy pair**
+  well (rank 14–46, worst of all six methods) — permutation importance
+  dilutes across correlated features and misses pure interaction effects.
+- **MINE** does not clearly converge within the compute budget used (18.3%
+  relative change at epoch 300 vs. a 5% threshold) and its bootstrap CI
+  crosses zero at every p — unreliable at this training budget.
+- **InfoNCE** (p=27 only, single point estimate, not bootstrapped) underperforms
+  all four core methods (τ = −0.066 to 0.134) and shows no significant
+  downstream advantage over a random baseline.
+
+## Project structure
+
+```
+feature_selection_analysis/
+├── downstream_validation.py   # shared: knn_loo_accuracy, evaluate_method_vs_baseline (+ RF variants)
+├── READ.ME
+│
+├── synthetic/                 # ground-truth benchmark, p=27/50/105
+│   ├── simulation_study_v6_highdim.py      # core MI/II/DII/JMI sweep (also the shared library
+│   │                                        #   for compute_ii_pf / make_ii_joint / run_dii)
+│   ├── bootstrap_ci_synthetic.py           # bootstrap CI, p=27
+│   ├── bootstrap_ci_synthetic_highdimensional.py  # bootstrap CI, p=50/105
+│   ├── mine_synthetic_highdim.py           # MINE, p=27/50/105
+│   ├── rf_synthetic_highdim.py             # Random Forest, p=27/50/105
+│   ├── rf_diagnostics.py                   # RF stability + near-duplicate-feature checks
+│   ├── infonce_synthetic.py                # InfoNCE, p=27
+│   ├── infonce_synthetic_highdim.py        # InfoNCE p=50/105 extension (written, never completed)
+│   └── validate_downstream_synthetic.py
+│
+├── fredmd/                    # macro-financial, N=794, p=120
+│   ├── 2026-07-MD.csv         # raw FRED-MD panel
+│   ├── fredmd_analysis.py     # rankings + point-estimate downstream validation
+│   ├── bootstrap_ci_fredmd.py
+│   └── verify_fredmd_balanced.py
+│
+├── mi_complications/          # clinical, N=1700, p=107
+│   ├── MI.data                # raw UCI/Leicester dataset
+│   ├── mi_complications_analysis.py
+│   ├── mi_complications_per_target.py      # per-complication sweep (176 tests) + BH correction
+│   ├── mi_complications_rf_check.py
+│   ├── bootstrap_ci_mi_aggregate.py
+│   ├── bootstrap_mi_survivors.py           # bootstrap CI on the 7 BH survivors
+│   ├── verify_mi_rf_balanced.py
+│   └── reverify_balanced_accuracy.py
+│
+├── trading/                   # N=5000 (subsample of 440,402), p=27
+│   ├── train2.csv              # gitignored (110MB, over GitHub's 100MB limit)
+│   ├── real_data_analysis.py
+│   └── trading_downstream_validation.py
+│
+├── figures/                   # poster figures (matplotlib, PDF+PNG) + the scripts that build them
+│   ├── plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survivors, fig_trading
+│   └── plot_real_data_comparison.py # combined 3-panel real-data figure
+│
+└── archive/                   # superseded early-stage scripts (simulation_study v1–v5, first-pass
+                                # trading/DII scripts) — kept for history, not used by any current result
+```
+
+## Requirements
+
+Python 3.12. Exact versions used for the results above (see
+`requirements.txt`):
+
+```
+numpy==1.26.4
+pandas==3.0.2
+scikit-learn==1.8.0
+scipy==1.17.1
+matplotlib==3.10.8
+dadapy==0.3.3      # DII (DiffImbalance)
+jax==0.4.30        # MINE, InfoNCE
+jaxlib==0.4.30
+optax==0.2.5        # MINE, InfoNCE
+```
+
+## Installation
+
+```bash
+python3 -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## Usage
+
+Each dataset folder is self-contained: run its scripts with that folder as
+the working directory (e.g. `cd synthetic && python3 bootstrap_ci_synthetic.py`).
+Typical order per dataset: the `*_analysis.py` / `simulation_study_v6_highdim.py`
+script first (produces rankings), then the `bootstrap_ci_*.py` scripts
+(bootstrap CI on downstream advantage), then any `verify_*`/`*_diagnostics.py`
+scripts. Once all four datasets' results exist, generate the poster figures:
+
+```bash
+cd figures
+python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survivors, fig_trading
+python3 plot_real_data_comparison.py # combined 3-panel view
+```
+
+## Limitations
+
+- **Trading's bootstrap CI is coarser** (B=12 for MI/II, B=8 for DII) than
+  FRED-MD/MI-complications' (B=100/B=15) — N=5000 makes the O(N²)
+  downstream-validation step ~40× more expensive than on FRED-MD's N=794,
+  so under a fixed time budget the CI is wider by design, not distorted.
+- **RF's `n_estimators` stability check is borderline** (6.7% importance
+  drift across [50,100,200,500] trees) though rankings themselves agree
+  closely (τ ≈ 0.95–0.97 between levels).
+- **MINE and InfoNCE were not extended with the same rigor** as the core 4
+  methods: MINE shows convergence issues at the compute budget used here,
+  and InfoNCE was only run at p=27 as a single point estimate, not
+  bootstrapped.
+- **JMI greedy does not scale**: O(p²) cost makes it intractable above
+  p=27 in this setup, so it is excluded from the p=50/105 comparison.
+- Trading (p=27) is not high-dimensional, unlike FRED-MD and MI-complications
+  — it is included as complementary evidence, not a third high-dim
+  confirmation.
+
+## Data provenance & licensing
+
+- **`fredmd/2026-07-MD.csv`**: McCracken & Ng, FRED-MD monthly database
+  (Federal Reserve Bank of St. Louis), ODC-BY 1.0 licensed — public-domain
+  or permission-granted series only. Redistributed here with attribution;
+  cite McCracken & Ng (2016) when using this data.
+- **`mi_complications/MI.data`**: Golovenkin et al., *Myocardial infarction
+  complications* (UCI Machine Learning Repository / University of
+  Leicester, DOI: 10.25392/leicester.data.12045261.v3), CC BY 4.0 licensed
+  — sharing and adaptation permitted with attribution; cite Golovenkin et
+  al. (2020) when using this data.
+- **`trading/train2.csv`**: gitignored (110MB, exceeds GitHub's 100MB
+  limit) — not redistributed here.
+
+## References
+
+[1] Salvagnin, D. (2024). *Data-driven discovery with DADApy*. University of
+    Insubria lecture notes.
+
+[2] Wild, B., et al. (2025). Differentiable information imbalance for
+    causal inference. *Nature Communications*.
+
+[3] Del Tatto, C., et al. (2024). Robust inference of causal relationships
+    through information imbalance. *PNAS*, 121(21), e2317256.
+
+[4] McCracken, M. W., & Ng, S. (2016). FRED-MD: A monthly database for
+    macroeconomic research. *Journal of Business & Economic Statistics*,
+    34(4), 574–589.
+
+[5] Golovenkin, S. E., Gorban, A., Mirkes, E., et al. (2020). Myocardial
+    infarction complications [Dataset]. *UCI Machine Learning Repository*.
+    DOI: 10.25392/leicester.data.12045261.v3.
+
+## Citation
+
+```bibtex
+@conference{Salcuni2026,
+  author    = {Salcuni, Eleonora},
+  title     = {A Comparative Analysis of Feature Selection Methods:
+               Information Imbalance, Differentiable Information Imbalance,
+               and Mutual Information},
+  year      = {2026},
+  booktitle = {Bernoulli Society Conference}
+}
+```
+
+## Contact
+
+**Eleonora Salcuni** — Department of Statistics, University of Insubria,
+Varese, Italy.
+
+## License
+
+Available for academic and research purposes.

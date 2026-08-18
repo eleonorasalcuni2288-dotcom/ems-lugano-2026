@@ -1,0 +1,40 @@
+
+REAL DATA ANALYSIS — train2.csv
+=================================
+Full dataset: 440,402 observations | 27 features | binary target
+Subsample used: N=5000 (stratified, seed=42)
+
+Feature rankings (all methods):
+  Feature                   MI  II_pf  II_jt    DII     DII_w
+  -------------------------------------------------------
+  volume_sma_ratio_20       18     21     12      1    0.2881
+  volume_sma_ratio_10       18      4     13      2    0.2419
+  rsi_14                     3     10     18      3    0.2015
+  macd_hist                 18     22     20      4    0.1303
+  sma_ratio_50              18     18     10      5    0.1293
+  return_1d                 18      3     16      6    0.1216
+  return_5d                  7     24     26      7    0.1165
+  roc_5                      6      6     23      8    0.1068
+  ema_ratio_26              18     14      6      9    0.0928
+  volatility_60d             1      1     15     10    0.0560
+  sma_ratio_5               18     16      9     11    0.0386
+  volatility_20d            18     19      1     12    0.0282
+  avg_range_10d             18     15     19     13    0.0148
+  daily_range                5      7     14     14    0.0137
+  return_10d                18      5      3     15    0.0000
+  momentum_20d              18      9     21     16    0.0000
+  momentum_10d              18     25     11     17    0.0000
+  sma_ratio_20              18     27     17     18    0.0000
+  roc_10                    18     20      7     19    0.0000
+  return_20d                 8     12     25     20    0.0000
+  high_low_ratio            18      8     24     21    0.0000
+  volatility_10d            18     11     27     22    0.0000
+  sma_ratio_10              18     26     22     23    0.0000
+  sma_ratio_200              4      2      2     24    0.0000
+  ema_ratio_12               2     17      4     25    0.0000
+  atr_14                    18     13      5     26    0.0000
+  bb_position               18     23      8     27    0.0000
+
+Top-5  features (DII + L1): ['volume_sma_ratio_20', 'volume_sma_ratio_10', 'rsi_14', 'macd_hist', 'sma_ratio_50']
+Top-10 features (DII + L1): ['volume_sma_ratio_20', 'volume_sma_ratio_10', 'rsi_14', 'macd_hist', 'sma_ratio_50', 'return_1d', 'return_5d', 'roc_5', 'ema_ratio_26', 'volatility_60d']
+Suppressed by L1 (weight≈0): ['return_10d', 'return_20d', 'sma_ratio_10', 'sma_ratio_20', 'sma_ratio_200', 'ema_ratio_12', 'bb_position', 'volatility_10d', 'high_low_ratio', 'momentum_10d', 'momentum_20d', 'roc_10', 'atr_14']

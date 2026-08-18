@@ -1,0 +1,35 @@
+
+SIMULATION STUDY v4 – SUMMARY
+================================
+N=2000 | 27 features | 19 informative
+NEW: synergistic XOR (H) + near-duplicates (I)
+
+Rank Correlation with Ground Truth (Kendall τ / Spearman ρ):
+  MI           τ=0.256  ρ=0.351
+  II           τ=0.271  ρ=0.361
+  DII + L1     τ=0.356  ρ=0.466
+  DII no L1    τ=0.311  ρ=0.410
+
+Top-K Precision:
+  Method           Top-3  Top-5  Top-10  Top-16
+  MI               0.67   0.80   0.90    0.88
+  II               0.67   0.80   0.90    0.88
+  DII + L1         1.00   1.00   1.00    0.94
+  DII no L1        1.00   1.00   1.00    0.94
+  Baseline         0.70
+
+Synergistic group (x_syn_1, x_syn_2) — ranks assigned:
+  MI:       x_syn_1=25, x_syn_2=17
+  II:       x_syn_1=24, x_syn_2=23
+  DII+L1:   x_syn_1=2, x_syn_2=3
+  DII noL1: x_syn_1=2, x_syn_2=3
+  (expected: MI/II rank HIGH number = unimportant; DII ranks LOW = important)
+
+Near-duplicate weights (x_base + 4 copies):
+  Feature      DII+L1 weight   DII noL1 weight
+  x_base       0.0000         0.0191
+  x_dup_1      0.0675         0.0791
+  x_dup_2      0.1261         0.1177
+  x_dup_3      0.0000         0.0000
+  x_dup_4      0.0826         0.0845
+  (expected: +L1 concentrates on one; no-L1 spreads across all 5)

@@ -1,0 +1,15 @@
+
+SIMULATION STUDY SUMMARY
+=========================
+N = 2000 observations | 15 features | 11 informative
+
+Rank Correlation with Ground Truth (Kendall tau / Spearman rho):
+  MI:  τ = 0.543,  ρ = 0.686
+  II:  τ = 0.486,  ρ = 0.657
+  DII: τ = 0.467,  ρ = 0.639
+
+Top-5 Precision (fraction of informative features in top-5):
+  MI:  1.00
+  II:  1.00
+  DII: 1.00
+  Baseline (random): 0.73

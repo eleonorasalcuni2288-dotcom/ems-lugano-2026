@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\title{A Comparative Analysis of Feature Selection Methods:\\
+Information Imbalance, Differentiable Information Imbalance,\\
+and Mutual Information}
+\author{Salcuni Eleonora}
+\date{April 2026}
+
+\begin{document}
+
+\maketitle
+
+\section*{Abstract}
+
+Feature selection is a fundamental challenge in machine learning and
+statistics, aiming to identify the most informative variables in
+high-dimensional datasets to build interpretable and generalisable models.
+Mutual Information (MI) measures statistical dependence between each
+feature and the target independently; through greedy conditional
+selection (JMI) it can account for already-selected features.
+Information Imbalance (II), based on neighbourhood rank structure,
+evaluates features per-feature or jointly through backward elimination
+over the full feature space.
+Differentiable Information Imbalance (DII) extends II through
+simultaneous optimisation of continuous feature weights via gradient
+descent.
+A controlled simulation on a synthetic dataset of 27 features
+($N=2000$) with known ground truth compares methods under two
+settings: single-feature and joint features comparison.
+Performance is measured by Kendall's $\tau$ with the true
+importance ranking (higher = better).
+In the single-feature comparison, MI and II achieve equivalent
+correlations ($\tau=0.275$ and $\tau=0.276$).
+In the joint features comparison, II joint achieves $\tau=0.396$
+and DII with L1 regularisation ($\lambda=0.1$) achieves
+Top-10 precision~$=1.00$, while JMI greedy fails ($\tau \approx 0$)
+as its sequential structure cannot identify features with zero
+marginal conditional MI.
+A synergistic XOR feature pair, individually uninformative but jointly
+predictive, is ranked 26th and 21st by MI, 24th and 23rd by II, and
+18th--19th by JMI, whereas DII and II joint rank it 1st and 2nd,
+demonstrating that simultaneous optimisation is necessary to detect
+pure synergistic interactions.
+L1 regularisation further suppresses near-duplicate features.
+Applied to real stock return data (440,402 observations, 27 indicators),
+DII identifies volume and momentum features as most predictive while
+suppressing 13 redundant indicators, a result undetected by per-feature
+methods, confirming joint optimisation as essential when interactions
+and redundancy are present.
+
+\end{document}

@@ -1,0 +1,35 @@
+InfoNCE — ADDITIONAL MI ESTIMATOR, SYNTHETIC DATASET (p=27)
+============================================================
+epochs=300  lr=0.001  batch_sizes=[128, 512]
+Total runtime: 2.5 min
+
+--- batch_size=128 (MI cap=log(128)=4.852) ---
+  MI_full estimate = 1.4241
+  tau (point estimate) = -0.066
+  XOR synergy pair rank = (1, 2)
+  Downstream validation (Top-K accuracy vs random baseline):
+    K=3   acc=0.597  baseline=0.651  p=0.780
+    K=5   acc=0.591  baseline=0.705  p=0.975
+    K=10  acc=0.607  baseline=0.754  p=1.000
+    K=16  acc=0.726  baseline=0.769  p=0.975
+
+--- batch_size=512 (MI cap=log(512)=6.238) ---
+  MI_full estimate = 1.0541
+  tau (point estimate) = 0.134
+  XOR synergy pair rank = (1, 2)
+  Downstream validation (Top-K accuracy vs random baseline):
+    K=3   acc=0.597  baseline=0.651  p=0.780
+    K=5   acc=0.597  baseline=0.705  p=0.965
+    K=10  acc=0.725  baseline=0.754  p=0.880
+    K=16  acc=0.744  baseline=0.769  p=0.905
+
+Reference (bootstrap-mean tau, other 4 methods, p=27):
+  MI_perfeat   tau=0.269
+  II_perfeat   tau=0.270
+  II_joint     tau=0.302
+  DII_L1       tau=0.370
+
+NOTE: InfoNCE tau above is a single full-sample point estimate,
+not a bootstrap mean like the reference values — not perfectly
+apples-to-apples; the 4h time-box did not allow bootstrapping
+InfoNCE too (would require 56x more trainings).

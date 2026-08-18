@@ -1,0 +1,42 @@
+
+SIMULATION STUDY v5 — TWO-LEVEL FAIR COMPARISON
+=================================================
+N=2000 | 27 features | 19 informative
+
+LEVEL 1 — Per-feature (single variable vs target):
+  MI  (per-feat.):   τ=0.275  ρ=0.328
+  II  (per-feat.):   τ=0.276  ρ=0.385
+
+LEVEL 2 — Joint (all features used simultaneously):
+  JMI greedy:        τ=-0.009  ρ=0.009   [forward greedy, cond. MI]
+  MI  joint (LOO):   τ=0.265  ρ=0.377   [backward LOO, Kraskov k-NN]
+  II  joint (LOO):   τ=0.396  ρ=0.532   [backward LOO, k-NN ranks]
+  DII + L1 (λ=0.1):  τ=0.350  ρ=0.449   [global gradient optimisation]
+  DII no L1:         τ=0.282  ρ=0.400
+
+Top-K Precision:
+  Method                   Top-3  Top-5  Top-10  Top-16
+  MI  (per-feat.)          1.00   0.80   0.90    0.81
+  II  (per-feat.)          0.67   0.80   0.90    0.94
+  JMI greedy               1.00   0.80   0.90    0.81
+  MI  joint (LOO)          1.00   1.00   0.90    0.88
+  II  joint (LOO)          1.00   1.00   0.90    0.88
+  DII + L1                 1.00   1.00   1.00    0.94
+  DII no L1                1.00   1.00   1.00    0.88
+  Baseline                 0.70
+
+Synergistic pair (XOR):
+  MI  (per-feat.):   x_syn_1=26, x_syn_2=21
+  II  (per-feat.):   x_syn_1=24, x_syn_2=23
+  JMI greedy:        x_syn_1=16, x_syn_2=8
+  MI  joint (LOO):   x_syn_1=20, x_syn_2=19
+  II  joint (LOO):   x_syn_1=1, x_syn_2=2
+  DII + L1:          x_syn_1=1, x_syn_2=2
+  DII no L1:         x_syn_1=1, x_syn_2=2
+
+Near-duplicate DII weights (x_base + 4 copies):
+  x_base       DII+L1=0.1001  DII_noL1=0.0967
+  x_dup_1      DII+L1=0.1240  DII_noL1=0.1227
+  x_dup_2      DII+L1=0.0619  DII_noL1=0.0735
+  x_dup_3      DII+L1=0.0000  DII_noL1=0.0000
+  x_dup_4      DII+L1=0.0000  DII_noL1=0.0103

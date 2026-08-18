@@ -1,0 +1,21 @@
+# Python virtual environment — never commit, ~760MB and machine-specific
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Local session/editor state — not part of the project
+.claude/
+
+# Large raw data — train2.csv is 110MB, over GitHub's 100MB hard limit.
+# Keep it locally / distribute separately (e.g. a download link in the
+# README), do not commit. Lives in feature_selection_analysis/trading/.
+train2.csv
+
+# Run logs — transient debug output from long-running scripts, not
+# meant to be version-controlled.
+*log*.txt

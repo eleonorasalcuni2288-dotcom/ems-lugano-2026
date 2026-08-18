@@ -1,0 +1,24 @@
+MINE — HIGH-DIMENSIONAL SCALABILITY (p=27,50,105)
+============================================================
+Total runtime: 56.7 min
+batch_size=512  ema_decay=0.99  B_bootstrap=20
+
+--- CONVERGENCE CHECK (p=27, full model) ---
+  NOT CLEARLY CONVERGED within 300 epochs (threshold 5%)
+  mid-window mean=0.8478  late-window mean=1.0026  rel_change=18.260%
+
+--- INTRINSIC STOCHASTICITY CHECK (p=27, 3 seeds, same data) ---
+  MI estimates: [1.0005594491958618, 1.087791919708252, 0.9869197805722555]
+  mean=1.0251  std=0.0447
+
+--- POINT ESTIMATES (tau, XOR pair rank) ---
+  p=27   tau=0.191  XOR rank=(2,1)  MI_full=1.0006
+  p=50   tau=0.015  XOR rank=(1,2)  MI_full=1.0666
+  p=105  tau=0.215  XOR rank=(53,89)  MI_full=1.3269
+
+--- BOOTSTRAP CI (tau) ---
+  p=27   tau_mean=0.073  [-0.128, 0.282]  (B=20)
+  p=50   tau_mean=-0.081  [-0.347, 0.191]  (B=20)
+  p=105  tau_mean=0.051  [-0.221, 0.364]  (B=20)
+
+Comparison: DII stays rank 1-3 at every p; II_joint collapses to rank ~22-70 at p=105 — see this run's XOR ranks above for where MINE falls on that spectrum.
