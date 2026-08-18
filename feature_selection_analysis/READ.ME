@@ -46,7 +46,7 @@ DII or the joint/gradient-based methods, which is itself part of the result.
 | Synthetic benchmark | 2,000 | 27 / 50 / 105 | continuous Y, known generative process incl. one XOR-type synergy pair | ground-truth check |
 | FRED-MD | 794 | 120 | S&P 500 monthly return, median-split binarized | independent real-data domain (macro-financial, high-dim) |
 | MI complications | 1,700 | 107 | any of 11 binary post-infarction complications | independent real-data domain (clinical, high-dim, no ground truth) |
-| Trading (`train2.csv`) | 5,000 (stratified subsample of 440,402) | 27 | native binary label | real-data domain, **not** high-dimensional — complementary, not a third high-dim confirmation |
+| Trading (`train2.csv`) | 5,000 (stratified subsample of 440,402) | 27 | next-day price direction, native binary (1=up, 0=down, ~50.3% positive) | real-data domain, **not** high-dimensional — complementary, not a third high-dim confirmation |
 
 ## Methodology
 
@@ -221,8 +221,12 @@ python3 plot_real_data_comparison.py # combined 3-panel view
   Leicester, DOI: 10.25392/leicester.data.12045261.v3), CC BY 4.0 licensed
   — sharing and adaptation permitted with attribution; cite Golovenkin et
   al. (2020) when using this data.
-- **`trading/train2.csv`**: gitignored (110MB, exceeds GitHub's 100MB
-  limit) — not redistributed here.
+- **`trading/train2.csv`**: Kaggle competition *Stock Market Signal:
+  Predict Next-Day Returns* — 440,402 rows, 100 anonymized US equities,
+  2000–2023, 27 engineered technical-indicator features, binary next-day
+  direction target. CC BY-SA 4.0 licensed. Gitignored here (110MB, exceeds
+  GitHub's 100MB limit) — not redistributed; download from the competition
+  page and place at `trading/train2.csv` to reproduce.
 
 ## References
 
@@ -242,6 +246,10 @@ python3 plot_real_data_comparison.py # combined 3-panel view
 [5] Golovenkin, S. E., Gorban, A., Mirkes, E., et al. (2020). Myocardial
     infarction complications [Dataset]. *UCI Machine Learning Repository*.
     DOI: 10.25392/leicester.data.12045261.v3.
+
+[6] *Stock Market Signal: Predict Next-Day Returns* [Dataset]. Kaggle.
+    https://www.kaggle.com/competitions/stock-market-signal-predict-next-day-returns
+    (CC BY-SA 4.0).
 
 ## Citation
 
