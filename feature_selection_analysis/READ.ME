@@ -2,19 +2,19 @@
 
 Information Imbalance (II), Differentiable Information Imbalance (DII), and
 Mutual Information (MI) compared under a shared two-level fair-comparison
-framework, extended to two general-purpose machine learning baselines (MINE,
-Random Forest), evaluated on a synthetic benchmark with known ground truth
-and three different real-world datasets. Prepared as a poster for the 35th
-European Meeting of Statisticians (EMS 2026), Lugano.
+framework, extended to two general-purpose machine learning baselines
+(MINE, Random Forest), evaluated on a synthetic benchmark with known
+ground truth and three different real-world datasets. Prepared as a
+poster for the 35th European Meeting of Statisticians (EMS 2026), Lugano.
 
 ## Overview
 
 Feature selection methods can disagree substantially on which features
-matter most, and this disagreement is not merely noise: it reflects genuine
-differences in what each method measures (correlation, k-NN geometry, or a
-learned neural bound) and in how each scales with dimensionality. This
-project runs seven methods head-to-head under one controlled experimental
-protocol:
+matter most, and this disagreement is not merely noise: it reflects
+genuine differences in what each method measures (correlation, k-NN
+geometry, or a learned neural bound) and in how each scales with
+dimensionality. This project runs seven methods head-to-head under one
+controlled experimental protocol:
 
 1. **Synthetic benchmark** (p=27/50/105, known ground-truth ranking
    including a synergistic XOR-type feature pair invisible to per-feature
@@ -22,9 +22,9 @@ protocol:
    the true feature importance.
 2. **Three real datasets** (FRED-MD macro-financial panel, MI-complications
    clinical data, trading time series), where there is no ground truth, so
-   methods are instead validated by whether their selected features
-   actually improve downstream k-NN classification accuracy over a random
-   baseline, with bootstrap-quantified uncertainty on that advantage.
+   methods are instead validated by whether their selected features actually
+   improve downstream k-NN classification accuracy over a random baseline,
+   with bootstrap-quantified uncertainty on that advantage.
 
 ## Methods compared
 
@@ -36,15 +36,15 @@ protocol:
 | **MINE** | Neural MI estimator, Donsker–Varadhan bound with bias-corrected (EMA) gradient | joint |
 | **RF** (Random Forest) | Permutation importance from a general-purpose ensemble model | joint |
 
-JMI (greedy conditional-MI selection) was also run on the synthetic
+**JMI** (greedy conditional-MI selection) was also run on the synthetic
 benchmark as a scalability reference, not as a competing ranking method:
 23.8s at p=27, 505.7s at p=50, and dropped above p=60 as its O(p²) cost
 becomes intractable. This is itself part of the result, showing that
 sequential greedy selection does not scale the way joint/gradient-based
 methods do.
 
-InfoNCE was explored early as a sixth candidate (p=27 only, single point
-estimate) but was superseded by MINE for the final comparison: unlike
+**InfoNCE** was explored early as a sixth candidate (p=27 only, single
+point estimate) but was superseded by MINE for the final comparison: unlike
 InfoNCE, which remains an unpublished arXiv preprint, MINE is peer-reviewed
 (Belghazi et al., 2018, ICML). Its script and results stay in `synthetic/`
 rather than `archive/`, since `infonce_synthetic.py` also defines the MLP
@@ -71,8 +71,8 @@ side by side.
   (independent scores) and jointly (leave-one-out backward elimination, or
   direct joint gradient optimisation for DII), so no method is compared
   per-feature against another's joint result.
-- **Bootstrap CI**: 80% subsampling without replacement (not classic
-  with-replacement bootstrap — chosen to avoid zero-distance duplicate-
+- **Bootstrap CI**: 80% subsampling *without* replacement (not classic
+  with-replacement bootstrap (chosen to avoid zero-distance duplicate-
   neighbour artefacts in the distance-based methods, II and DII), ranking
   recomputed from scratch on every draw.
 - **Ground-truth-free downstream validation** (the 3 real datasets): k-NN
@@ -80,11 +80,11 @@ side by side.
   compared against K random features (n=100 random draws), reported as an
   accuracy advantage with a bootstrap 95% CI. An advantage is called
   *robust* only if its CI excludes zero.
-- **Multiple-testing correction**: MI complications tests 11 complications
-  × 4 methods × 4 K values (176 tests) for which Benjamini–Hochberg correction
-  leaves 7 survivors, of which only 3 are also bootstrap-robust. BH
-  significance and CI-excludes-zero robustness do not always agree, which
-  is reported honestly rather than choise the stronger method by chance.
+- **Multiple-testing correction**: MI complications tests 11 complications ×
+  4 methods × 4 K values (176 tests); Benjamini–Hochberg correction leaves 7
+  survivors, of which only 3 are *also* bootstrap-robust. BH significance
+  and CI-excludes-zero robustness do not always agree, which is reported
+  honestly rather than picking whichever criterion looks stronger.
 
 ## Key findings
 
@@ -212,36 +212,19 @@ python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survi
   complications' (B=15–200): N=5000 makes the O(N²) downstream-validation
   step substantially more expensive than on FRED-MD's N=794, so under a
   fixed time budget the CI is wider by design, not distorted.
-- **Trading's target is close to unpredictable by design**: next-day price
-  direction is a near-efficient-market prediction task — the source
-  competition itself frames it as "beating a coin flip," with baseline
-  accuracy near 50%. This is consistent with the weaker, more fragile
-  downstream signal observed for trading relative to FRED-MD and
-  MI-complications; it reflects the nature of the task, not an artefact of
-  the analysis.
-- **Trading's subsample is stratified only by target, not by stock**: a
-  given stock can contribute up to several dozen of the 5,000 sampled rows
-  (mean ~50, max 86, across the 100 stocks). Since features are built from
-  overlapping rolling windows, same-stock rows are somewhat more likely to
-  be k-NN neighbours of each other than chance would predict (measured
-  directly: 4.2% vs. an expected ~1.0% under i.i.d. sampling). This does
-  not appear to favour the reported method, however: DII+L1's actual
-  top-5 selected features show a same-stock neighbour rate (1.9%) no
-  higher than a random 5-feature draw (2.7%).
 - **RF's `n_estimators` stability check is borderline** (6.7% importance
   drift across [50,100,200,500] trees) though rankings themselves agree
   closely (τ ≈ 0.95–0.97 between levels).
 - **MINE shows convergence issues** at the compute budget used here (18.3%
   relative change between epoch windows at p=27, vs. a 5% threshold); its
-  weak bootstrap CIs are consistent with, not necessarily caused solely
-  by, this undertraining.
+  weak bootstrap CIs are consistent with, not necessarily caused solely by,
+  this undertraining.
 - **JMI greedy does not scale**: O(p²) cost makes it intractable above
   p=60 in this setup (505.7s already at p=50), so it is excluded from the
   p=105 comparison and from the downstream-validation protocol entirely.
-- Trading (p=27) is not high-dimensional, unlike FRED-MD and
-  MI-complications. It is included as complementary evidence at
-  comparable dimensionality to the synthetic baseline, not a third
-  high-dimensional confirmation.
+- Trading (p=27) is not high-dimensional, unlike FRED-MD and MI-complications.
+  It is included as complementary evidence at comparable dimensionality
+  to the synthetic baseline, not a third high-dimensional confirmation.
 
 ## Data provenance & licensing
 
@@ -249,16 +232,15 @@ python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survi
   (Federal Reserve Bank of St. Louis): public-domain or permission-granted
   series only. Redistributed here with attribution; cite McCracken & Ng
   (2016) when using this data.
-- **`mi_complications/MI.data`**: Golovenkin et al., *Myocardial infarction
-  complications* (UCI Machine Learning Repository / University of
-  Leicester, DOI: 10.25392/leicester.data.12045261.v3), CC BY 4.0
-  licensed, sharing and adaptation permitted with attribution; cite
-  Golovenkin et al. (2020) when using this data.
-- **`trading/train2.csv`**: Kaggle competition *Stock Market Signal:
-  Predict Next-Day Returns* — 440,402 rows, 100 anonymized US equities
-  (2000–2023), 27 engineered technical-indicator features, binary
-  next-day direction target. CC BY-SA 4.0 licensed. Gitignored here
-  (110MB, exceeds GitHub's 100MB limit) — not redistributed; download from
+- **`mi_complications/MI.data`**: Golovenkin et al. (2020), dataset DOI:
+  10.25392/leicester.data.12045261.v3 (UCI Machine Learning Repository /
+  University of Leicester), CC BY 4.0 licensed, sharing and adaptation
+  permitted with attribution; cite the *GigaScience* paper above when
+  using this data.
+- **`trading/train2.csv`**: *Stock Market Signal: Predict Next-Day
+  Returns* (Kaggle competition, created by J. Saleeby, 2026), CC BY-SA
+  4.0 licensed, 100 anonymized US equities, 2000–2023. Gitignored here
+  (110MB, exceeds GitHub's 100MB limit), not redistributed; download from
   the competition page and place at `trading/train2.csv` to reproduce.
 
 ## References
@@ -276,40 +258,32 @@ python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survi
 
 [4] Wild, R., Wodaczek, F., Del Tatto, V., Cheng, B., & Laio, A. (2025).
     Automatic feature selection and weighting in molecular systems using
-    Differentiable Information Imbalance. *Nature Communications*, 16,
-    270.
+    Differentiable Information Imbalance. *Nature Communications*, 16, 270.
 
 [5] McCracken, M. W., & Ng, S. (2016). FRED-MD: A monthly database for
     macroeconomic research. *Journal of Business & Economic Statistics*,
     34(4), 574–589.
 
-[6] Golovenkin, S. E., Gorban, A., Mirkes, E., et al. (2020). Myocardial
-    infarction complications [Dataset]. *UCI Machine Learning Repository*.
-    DOI: 10.25392/leicester.data.12045261.v3.
+[6] Golovenkin, S. E., Bac, J., Chervov, A., Mirkes, E. M., Orlova, Y. V.,
+    Barillot, E., Gorban, A. N., & Zinovyev, A. (2020). Trajectories,
+    bifurcations, and pseudo-time in large clinical datasets:
+    applications to myocardial infarction and diabetes data.
+    *GigaScience*, 9(11), giaa128.
 
-[7] *Stock Market Signal: Predict Next-Day Returns* [Dataset]. Kaggle.
-    https://www.kaggle.com/competitions/stock-market-signal-predict-next-day-returns
-    (CC BY-SA 4.0).
-
-[8] Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery
+[7] Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery
     rate: A practical and powerful approach to multiple testing. *Journal
     of the Royal Statistical Society, Series B*, 57(1), 289–300.
 
-[9] Efron, B. (1979). Bootstrap methods: Another look at the jackknife.
+[8] Efron, B. (1979). Bootstrap methods: Another look at the jackknife.
     *The Annals of Statistics*, 7(1), 1–26.
 
-[10] Belghazi, M. I., Baratin, A., Rajeshwar, S., Ozair, S., Bengio, Y.,
-     Courville, A., & Hjelm, R. D. (2018). MINE: Mutual information neural
-     estimation. *Proceedings of the 35th International Conference on
-     Machine Learning*, PMLR 80, 531–540.
+[9] Belghazi, M. I., Baratin, A., Rajeshwar, S., Ozair, S., Bengio, Y.,
+    Courville, A., & Hjelm, R. D. (2018). MINE: Mutual information neural
+    estimation. *Proceedings of the 35th International Conference on
+    Machine Learning*, PMLR 80, 531–540.
 
-[11] Breiman, L. (2001). Random forests. *Machine Learning*, 45(1), 5–32.
-
-## Citation
-
+[10] Breiman, L. (2001). Random forests. *Machine Learning*, 45(1), 5–32.
 
 ## Contact
 
-**Eleonora Salcuni** — eleonora.salcuni@usi.ch or eleonorasalcuni2288@gmail.com
-
-
+**Eleonora Salcuni**: eleonora.salcuni@usi.ch or eleonorasalcuni2288@gmail.com
