@@ -1,6 +1,12 @@
 """
 Trading (train2.csv) — Ground-Truth-Free Downstream Validation + Bootstrap CI
 ================================================================================
+Dataset: Kaggle competition "Stock Market Signal: Predict Next-Day Returns"
+(https://www.kaggle.com/competitions/stock-market-signal-predict-next-day-returns,
+CC BY-SA 4.0) — 440,402 rows, 100 anonymized US equities (2000-2023), 27
+engineered technical-indicator features, binary next-day price-direction
+target (1=up, 0=down, ~50.3% positive).
+
 Brings the trading dataset up to the same rigor tier as FRED-MD and MI
 complications: ground-truth-free downstream validation (evaluate_method_vs_
 baseline) plus bootstrap-quantified uncertainty on the downstream advantage

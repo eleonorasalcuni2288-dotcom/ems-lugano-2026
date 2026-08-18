@@ -4,7 +4,11 @@ Real Data Analysis — train2.csv
 Applies the same two-level fair comparison framework as simulation_study_v5
 to the real stock return prediction dataset.
 
-Dataset: 440,402 observations, 27 financial/technical features, binary target.
+Dataset: Kaggle competition "Stock Market Signal: Predict Next-Day Returns"
+(https://www.kaggle.com/competitions/stock-market-signal-predict-next-day-returns,
+CC BY-SA 4.0) — 440,402 rows, 100 anonymized US equities (2000-2023), 27
+engineered technical-indicator features, binary next-day price-direction
+target (1=up, 0=down, ~50.3% positive).
 Subsample: N=5000 (stratified on target) for computational feasibility.
 
 Methods:
