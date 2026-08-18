@@ -37,7 +37,7 @@ from sklearn.feature_selection import mutual_info_regression
 
 import sys as _sys, os as _os
 _ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-_sys.path.insert(0, _ROOT)                              # downstream_validation.py lives here
+_sys.path.insert(0, _os.path.join(_ROOT, 'common'))     # downstream_validation.py lives here
 _sys.path.insert(0, _os.path.join(_ROOT, 'synthetic'))  # simulation_study_v6_highdim.py lives here
 from simulation_study_v6_highdim import (
     generate_core_dataset, compute_ii_pf, make_ii_joint, run_dii,

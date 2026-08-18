@@ -105,8 +105,10 @@ datasets** — the closest thing to a consistent winner across domains:
 
 ```
 feature_selection_analysis/
-├── downstream_validation.py   # shared: knn_loo_accuracy, evaluate_method_vs_baseline (+ RF variants)
 ├── READ.ME
+│
+├── common/
+│   └── downstream_validation.py   # shared: knn_loo_accuracy, evaluate_method_vs_baseline (+ RF variants)
 │
 ├── synthetic/                 # ground-truth benchmark, p=27/50/105
 │   ├── simulation_study_v6_highdim.py      # core MI/II/DII/JMI sweep (also the shared library
@@ -256,8 +258,7 @@ python3 plot_real_data_comparison.py # combined 3-panel view
 
 ## Contact
 
-**Eleonora Salcuni** — Department of Statistics, University of Insubria,
-Varese, Italy.
+**Eleonora Salcuni** — 
 
 ## License
 
