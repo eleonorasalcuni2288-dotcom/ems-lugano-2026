@@ -46,8 +46,11 @@ methods do.
 InfoNCE was explored early as a sixth candidate (p=27 only, single point
 estimate) but was superseded by MINE for the final comparison: unlike
 InfoNCE, which remains an unpublished arXiv preprint, MINE is peer-reviewed
-(Belghazi et al., 2018, ICML). InfoNCE's script and results are kept in
-`archive/` for reference but are not part of the reported comparison.
+(Belghazi et al., 2018, ICML). Its script and results stay in `synthetic/`
+rather than `archive/`, since `infonce_synthetic.py` also defines the MLP
+utilities (`init_mlp`, `mlp_apply`) reused by `mine_synthetic_highdim.py`
+and `rf_synthetic_highdim.py` — the InfoNCE experiment itself is not part
+of the reported comparison, but the file is not purely historical.
 
 ## Datasets
 
@@ -78,11 +81,10 @@ side by side.
   accuracy advantage with a bootstrap 95% CI. An advantage is called
   *robust* only if its CI excludes zero.
 - **Multiple-testing correction**: MI complications tests 11 complications
-  × 4 methods × 4 K values (176 tests); Benjamini–Hochberg correction
+  × 4 methods × 4 K values (176 tests) for which Benjamini–Hochberg correction
   leaves 7 survivors, of which only 3 are also bootstrap-robust. BH
   significance and CI-excludes-zero robustness do not always agree, which
-  is reported honestly rather than picking whichever criterion looks
-  stronger.
+  is reported honestly rather than choise the stronger method by chance.
 
 ## Key findings
 
@@ -128,7 +130,11 @@ feature_selection_analysis/
 │   ├── bootstrap_ci_synthetic_highdimensional.py  # bootstrap CI, p=50/105
 │   ├── mine_synthetic_highdim.py           # MINE, p=27/50/105
 │   ├── rf_synthetic_highdim.py             # Random Forest, p=27/50/105
-│   └── rf_diagnostics.py                   # RF stability + near-duplicate-feature checks
+│   ├── rf_diagnostics.py                   # RF stability + near-duplicate-feature checks
+│   ├── infonce_synthetic.py                # InfoNCE, p=27 (also defines init_mlp/mlp_apply,
+│   │                                        #   reused by MINE and RF above — not purely historical)
+│   ├── infonce_synthetic_highdim.py        # InfoNCE p=50/105 extension (written, never completed)
+│   └── validate_downstream_synthetic.py    # sanity check: ranking-by-accuracy vs ranking-by-tau
 │
 ├── fredmd/                    # macro-financial, N=794, p=120
 │   ├── 2026-07-MD.csv         # raw FRED-MD panel
@@ -152,11 +158,12 @@ feature_selection_analysis/
 │   └── trading_downstream_validation.py
 │
 ├── figures/                   # poster figures (matplotlib, PDF+PNG) + the scripts that build them
-│   └── plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survivors, fig_trading
+│   ├── plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survivors, fig_trading
+│   └── plot_real_data_comparison.py # combined 3-panel real-data figure
 │
-└── archive/                   # superseded early-stage scripts (simulation_study v1–v5, InfoNCE
-                                # exploration, first-pass trading/DII scripts), kept for history,
-                                # not used by any current result
+└── archive/                   # superseded early-stage scripts (simulation_study v1–v5, first-pass
+                                # trading/DII scripts, paper_draft.tex), kept for history, not used
+                                # by any current result
 ```
 
 ## Requirements
@@ -299,21 +306,9 @@ python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survi
 
 ## Citation
 
-```bibtex
-@conference{Salcuni2026,
-  author    = {Salcuni, Eleonora},
-  title     = {Robustness of Information-Theoretic Feature Selection in
-               High Dimensions: A Bootstrap-Validated Comparison Across
-               Synthetic and Real Data},
-  year      = {2026},
-  booktitle = {35th European Meeting of Statisticians (EMS 2026), Lugano}
-}
-```
 
 ## Contact
 
-**Eleonora Salcuni** — eleonora.salcuni@usi.ch
+**Eleonora Salcuni** — eleonora.salcuni@usi.ch or eleonorasalcuni2288@gmail.com
 
-## License
 
-Available for academic and research purposes.
