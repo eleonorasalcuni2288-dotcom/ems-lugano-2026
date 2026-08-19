@@ -138,11 +138,17 @@ Benjamini–Hochberg correction (see Methodology):
   vs. l1=0.10); across 3 random seeds at l1=0.10, results are identical
   (std=0.000) — DII's training here is full-batch (`batches_per_epoch=1`)
   and effectively deterministic, not stochastic the way MINE's is.
-- **Trading**: DII+L1's bootstrap CI excludes zero at K=10 (+0.019
-  [0.011, 0.026]) and K=16 (+0.016 [0.011, 0.026]), and II per-feature at
-  K=3 — but **none of these survive BH correction** for the dataset's 16
-  tests. Trading's downstream signal, while directionally consistent with
-  DII+L1, is the weakest of the three real datasets by both criteria.
+- **Trading**: at full resolution (B=100 for MI/II, B=15 for DII, matching
+  FRED-MD/MI-complications exactly), DII+L1's bootstrap CI excludes zero
+  at K=10 (+0.018 [0.004, 0.026]) and K=16 (+0.015 [0.006, 0.025]) — the
+  *only* robust result on this dataset. II per-feature's apparent K=3
+  robustness at a smaller preliminary bootstrap (B=12) did not hold up
+  under the full run (now +0.003 [−0.019, 0.017], fragile) — a genuine
+  correction, not noise in the other direction: more draws revealed a
+  false positive, not a false negative. **None of DII+L1's results
+  survive BH correction** for the dataset's 16 tests either. Trading's
+  downstream signal is the weakest of the three real datasets by both
+  criteria.
 - **FRED-MD**: DII+L1's bootstrap CI excludes zero at all 4 K (advantage
   +0.03 to +0.13); under BH correction, DII+L1 at K=5/10/16 and MI
   per-feature at K=10 remain significant (4/16 total), while DII+L1 at
@@ -252,10 +258,6 @@ python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survi
 
 ## Limitations
 
-- **Trading's bootstrap CI is coarser** (B=8–12) than FRED-MD/MI-
-  complications' (B=15–200): N=5000 makes the O(N²) downstream-validation
-  step substantially more expensive than on FRED-MD's N=794, so under a
-  fixed time budget the CI is wider by design, not distorted.
 - **RF's `n_estimators` stability check is borderline** (6.7% importance
   drift across [50,100,200,500] trees) though rankings themselves agree
   closely (τ ≈ 0.95–0.97 between levels).
