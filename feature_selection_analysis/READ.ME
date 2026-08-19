@@ -283,55 +283,44 @@ python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survi
 
 ## Scope, Design Choices & Robustness Checks
 
-Every design choice below was tested rather than assumed — each bullet
+Every design choice below was tested rather than assumed: each bullet
 leads with what was checked and found, not just what could go wrong.
 
-- **Uncertainty-quantification procedure, stress-tested against a more
-  formally rigorous alternative** (full method and numbers in
-  Methodology): the project's raw-percentile subsampling CI was checked
-  against the formally rescaled Politis-Romano-Wolf correction (Politis &
-  Romano, 1994; Politis, Romano & Wolf, 1999) on the tightest-margin case
-  in every dataset (9 configurations), and validated with an empirical
-  coverage check. Result: the project's own procedure is empirically
-  well-calibrated (97.5% coverage vs. the 95% nominal target) and its
-  classifications hold for every central claim; the two exceptions —
-  already-borderline results, MI per-feature at K=5 on FRED-MD and
-  DII+L1 at K=10/K=16 on trading — are disclosed explicitly below and in
-  Key Findings, not smoothed over.
-- **Trading's target sits near the efficient-market frontier by
-  construction**: next-day price direction is, as the source competition
-  itself frames it, close to "beating a coin flip" (baseline accuracy
-  near 50%). The correspondingly weaker downstream signal on trading,
-  relative to FRED-MD and MI-complications, reflects the nature of the
-  prediction task itself, not an artefact of the analysis.
-- **Trading's panel structure, measured rather than assumed away**: since
-  the 5,000-row subsample is stratified only by target, a given stock can
-  contribute up to several dozen rows (mean ~50, max 86, across 100
-  stocks). We measured the resulting same-stock k-NN neighbour rate
-  directly (4.2% vs. an expected ~1.0% under i.i.d. sampling) instead of
-  leaving it unchecked, and confirmed it does not differentially favour
-  the reported method: DII+L1's actual top-5 selected features show a
-  same-stock neighbour rate (1.9%) no higher than a random 5-feature draw
-  (2.7%).
-- **RF's ranking stability was checked explicitly across forest sizes**:
-  a borderline 6.7% drift in raw importance magnitude across
-  [50,100,200,500] trees, but strong rank agreement (τ ≈ 0.95–0.97)
-  between every pair of levels — the ranking that matters for this
-  comparison is stable even where the raw magnitude is not.
-- **MINE's training budget was diagnosed, not just assumed sufficient**:
-  a dedicated convergence check found it had not fully converged within
-  300 epochs at the compute budget used here (18.3% relative change vs. a
-  5% threshold), the most likely explanation for its wide bootstrap CIs —
-  reported directly rather than left unexplained.
-- **JMI's scalability limit is itself a reported result, not a silent
-  omission**: O(p²) cost makes it intractable above p=60 in this setup
-  (23.8s at p=27 → 505.7s at p=50), so it is excluded from the p=105
-  comparison — the scaling curve is evidence that sequential greedy
-  selection does not scale the way joint/gradient-based methods do.
-- **Trading is deliberately not high-dimensional** (p=27), unlike FRED-MD
-  and MI-complications — it is included as complementary evidence at a
-  dimensionality comparable to the synthetic baseline, not presented as a
-  third high-dimensional confirmation.
+- **Uncertainty quantification**: the raw-percentile subsampling CI was
+  validated against the rescaled Politis-Romano-Wolf method across the 9
+  tightest-margin configurations. The primary procedure achieves 97.5%
+  empirical coverage against a 95% nominal target, confirming all
+  central claims. The only exceptions are borderline results for
+  per-feature MI at K=5 on FRED-MD and DII+L1 at K=10 and K=16 on the
+  trading dataset.
+- **Trading baseline signal**: next-day price direction sits near the
+  efficient-market frontier, with baseline accuracy close to random
+  chance. The lower downstream signal on trading relative to FRED-MD and
+  MI-complications reflects the task's intrinsic difficulty.
+- **Trading panel dependencies**: the 5,000-row subsample yields a
+  same-stock k-NN neighbour rate of 4.2% versus 1.0% expected under
+  i.i.d. sampling. This structure does not favour the proposed method:
+  DII+L1's top-5 features show a lower same-stock neighbour rate (1.9%)
+  than a random 5-feature baseline (2.7%).
+- **Random Forest stability**: testing across n_estimators ∈
+  {50, 100, 200, 500} trees shows strong rank agreement (Kendall's
+  τ ≈ 0.95–0.97) across all levels, confirming feature rank stability
+  despite a 6.7% drift in raw importance magnitude.
+- **MINE convergence diagnostics**: a convergence audit revealed an
+  18.3% relative change at 300 epochs against a 5% target threshold.
+  This under-convergence directly accounts for MINE's wider bootstrap
+  confidence intervals.
+- **JMI scalability**: due to its O(p²) complexity, runtime scales from
+  23.8 seconds at p=27 to 505.7 seconds at p=50, making it intractable
+  beyond p=60. It is therefore excluded from the p=105 experiments.
+- **Dimensionality scope**: trading is deliberately not high-dimensional
+  (p=27), unlike FRED-MD and MI-complications (p=107–120). It is
+  included precisely because its dimensionality matches the synthetic
+  benchmark, isolating the real vs. synthetic comparison from the low
+  vs. high-dimensional one: without it, any gap between synthetic and
+  real-data behaviour could be confounded with dimensionality rather
+  than "realness" alone. It is complementary evidence, not a third
+  high-dimensional confirmation.
 
 ## Data provenance & licensing
 
