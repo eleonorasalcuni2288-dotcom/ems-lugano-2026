@@ -258,6 +258,22 @@ python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survi
 
 ## Limitations
 
+- **Trading's target is close to unpredictable by design**: next-day price
+  direction is a near-efficient-market prediction task — the source
+  competition itself frames it as "beating a coin flip," with baseline
+  accuracy near 50%. This is consistent with the weaker, more fragile
+  downstream signal observed for trading relative to FRED-MD and
+  MI-complications; it reflects the nature of the task, not an artefact
+  of the analysis.
+- **Trading's subsample is stratified only by target, not by stock**: a
+  given stock can contribute up to several dozen of the 5,000 sampled
+  rows (mean ~50, max 86, across the 100 stocks). Since features are
+  built from overlapping rolling windows, same-stock rows are somewhat
+  more likely to be k-NN neighbours of each other than chance would
+  predict (measured directly: 4.2% vs. an expected ~1.0% under i.i.d.
+  sampling). This does not appear to favour the reported method,
+  however: DII+L1's actual top-5 selected features show a same-stock
+  neighbour rate (1.9%) no higher than a random 5-feature draw (2.7%).
 - **RF's `n_estimators` stability check is borderline** (6.7% importance
   drift across [50,100,200,500] trees) though rankings themselves agree
   closely (τ ≈ 0.95–0.97 between levels).
