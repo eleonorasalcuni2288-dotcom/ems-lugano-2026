@@ -1,0 +1,4 @@
+theta_true = 0.2763 (avg tau over 200 independent N=2000 datasets)
+CURRENT (uncorrected) empirical coverage: 97.5% (39/40)
+CORRECTED (Politis-Romano-Wolf) coverage: 70.0% (28/40)
+Nominal target: 95%

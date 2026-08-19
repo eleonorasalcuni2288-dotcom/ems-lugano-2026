@@ -94,6 +94,18 @@ side by side.
   testing 16 hypotheses. BH significance and CI-excludes-zero robustness
   do not always agree, on any of the three datasets, which is reported
   honestly rather than picking whichever criterion looks stronger.
+- **A stress-test of the uncertainty-quantification procedure itself**:
+  the project's subsampling-based CIs are checked against the formally
+  rescaled Politis-Romano-Wolf subsampling correction on the
+  tightest-margin case in every dataset (9 configurations total),
+  confirming the central claims are robust to this choice of procedure,
+  while identifying which specific results are close enough to the zero
+  boundary to be sensitive to it. A follow-up empirical coverage check
+  found the project's own procedure achieves 97.5% coverage of the true
+  value (close to the 95% nominal target, mildly conservative), while the
+  formally corrected procedure achieves only 70.0% here — under-covering,
+  consistent with its asymptotic assumptions not holding at 80%
+  subsampling. See Limitations for the full results.
 
 ## Key findings
 
@@ -283,7 +295,20 @@ python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survi
   and DII+L1 at K=10 and K=16 on trading (ci_lo +0.004/+0.006 → both
   fragile). Every result with a wider margin — including DII+L1's central
   claim on FRED-MD (all 4 K) and MI complications (all 3 bootstrap-robust
-  BH survivors) — is unchanged under the corrected procedure.
+  BH survivors) — is unchanged under the corrected procedure. A follow-up
+  empirical coverage check (II-joint, p=27: 200 independent datasets to
+  estimate the true value, then 40 independent replications checking
+  whether each procedure's 95% CI actually contains it) found the
+  project's own procedure achieves 97.5% coverage (39/40) — close to
+  nominal, mildly conservative — while the formally corrected procedure
+  achieves only 70.0% (28/40), under-covering. This is consistent with
+  the correction's asymptotic theory requiring the subsample size to be
+  much smaller than N as N grows; at 80% subsampling that regime does not
+  hold, and the correction's √(b/n) rescaling plus recentring on a single
+  (noisy) point estimate narrows the interval more than the data justify
+  here. The project's own, simpler procedure is empirically the
+  better-calibrated one for this specific design, not merely a
+  convenient simplification.
 - **Trading's target is close to unpredictable by design**: next-day price
   direction is a near-efficient-market prediction task, the source
   competition itself frames it as "beating a coin flip," with baseline
