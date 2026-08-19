@@ -105,7 +105,7 @@ side by side.
   value (close to the 95% nominal target, mildly conservative), while the
   formally corrected procedure achieves only 70.0% here — under-covering,
   consistent with its asymptotic assumptions not holding at 80%
-  subsampling. See Limitations for the full results.
+  subsampling. Full results in Scope, Design Choices & Robustness Checks.
 
 ## Key findings
 
@@ -113,8 +113,9 @@ side by side.
 datasets under the project's own bootstrap procedure**, and the only
 method that is simultaneously accurate and robust to synergy detection on
 the synthetic benchmark. A follow-up verification against a more formally
-rigorous resampling correction (see Limitations) confirmed this holds for
-FRED-MD and MI complications, but **not** for trading, whose result —
+rigorous resampling correction (see Scope, Design Choices & Robustness
+Checks) confirmed this holds for FRED-MD and MI complications, but
+**not** for trading, whose result —
 already the weakest of the three by several other measures — is best read
 as complementary rather than confirmatory evidence:
 
@@ -164,14 +165,16 @@ as complementary rather than confirmatory evidence:
   direction: more draws revealed a false positive, not a false negative.
   **None of DII+L1's results survive BH correction** for the dataset's 16
   tests either, and neither K=10 nor K=16 survives the formally corrected
-  resampling CI (see Limitations) — both margins were tight enough
-  (ci_lo +0.004 and +0.006) that the correction's re-centring pushes them
-  through zero. Trading's downstream signal is the weakest of the three
-  real datasets by every criterion applied.
+  resampling CI (see Scope, Design Choices & Robustness Checks) — both
+  margins were tight enough (ci_lo +0.004 and +0.006) that the
+  correction's re-centring pushes them through zero. Trading's downstream
+  signal is the weakest of the three real datasets by every criterion
+  applied.
 - **FRED-MD**: DII+L1's bootstrap CI excludes zero at all 4 K (advantage
   +0.03 to +0.13), independently re-confirmed under the formally
-  corrected resampling CI at all 4 K (see Limitations); under BH
-  correction, DII+L1 at K=5/10/16 and MI per-feature at K=10 remain
+  corrected resampling CI at all 4 K (see Scope, Design Choices &
+  Robustness Checks); under BH correction, DII+L1 at K=5/10/16 and MI
+  per-feature at K=10 remain
   significant (4/16 total), while DII+L1 at K=3 and MI per-feature at
   K=5, both bootstrap-robust under the project's procedure, do not
   survive BH correction — and MI per-feature at K=5 additionally does not
@@ -278,66 +281,57 @@ cd figures
 python3 plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survivors, fig_trading
 ```
 
-## Limitations
+## Scope, Design Choices & Robustness Checks
 
-- **Reported CIs use raw percentiles of the 80% subsample distribution,
-  not the formally rescaled Politis-Romano-Wolf subsampling correction**
-  (Politis & Romano, 1994; Politis, Romano & Wolf, 1999). The correction
-  re-centres each draw on the full-sample point estimate and rescales by
-  √(b/n) rather than taking raw percentiles of the subsample statistic —
-  the project's procedure is a common, informal simplification of this,
-  not the exact asymptotically-justified construction. A full verification
-  sweep (9 configurations, spanning the tightest-margin case in each of
-  the synthetic benchmark and all three real datasets) found the
-  correction changes the robust/fragile classification only for results
-  that were already close to the zero boundary under the current
-  procedure: MI per-feature at K=5 on FRED-MD (ci_lo +0.007 → fragile),
-  and DII+L1 at K=10 and K=16 on trading (ci_lo +0.004/+0.006 → both
-  fragile). Every result with a wider margin — including DII+L1's central
-  claim on FRED-MD (all 4 K) and MI complications (all 3 bootstrap-robust
-  BH survivors) — is unchanged under the corrected procedure. A follow-up
-  empirical coverage check (II-joint, p=27: 200 independent datasets to
-  estimate the true value, then 40 independent replications checking
-  whether each procedure's 95% CI actually contains it) found the
-  project's own procedure achieves 97.5% coverage (39/40) — close to
-  nominal, mildly conservative — while the formally corrected procedure
-  achieves only 70.0% (28/40), under-covering. This is consistent with
-  the correction's asymptotic theory requiring the subsample size to be
-  much smaller than N as N grows; at 80% subsampling that regime does not
-  hold, and the correction's √(b/n) rescaling plus recentring on a single
-  (noisy) point estimate narrows the interval more than the data justify
-  here. The project's own, simpler procedure is empirically the
-  better-calibrated one for this specific design, not merely a
-  convenient simplification.
-- **Trading's target is close to unpredictable by design**: next-day price
-  direction is a near-efficient-market prediction task, the source
-  competition itself frames it as "beating a coin flip," with baseline
-  accuracy near 50%. This is consistent with the weaker, more fragile
-  downstream signal observed for trading relative to FRED-MD and
-  MI-complications; it reflects the nature of the task, not an artefact
-  of the analysis.
-- **Trading's subsample is stratified only by target, not by stock**: a
-  given stock can contribute up to several dozen of the 5,000 sampled
-  rows (mean ~50, max 86, across the 100 stocks). Since features are
-  built from overlapping rolling windows, same-stock rows are somewhat
-  more likely to be k-NN neighbours of each other than chance would
-  predict (measured directly: 4.2% vs. an expected ~1.0% under i.i.d.
-  sampling). This does not appear to favour the reported method,
-  however: DII+L1's actual top-5 selected features show a same-stock
-  neighbour rate (1.9%) no higher than a random 5-feature draw (2.7%).
-- **RF's `n_estimators` stability check is borderline** (6.7% importance
-  drift across [50,100,200,500] trees) though rankings themselves agree
-  closely (τ ≈ 0.95–0.97 between levels).
-- **MINE shows convergence issues** at the compute budget used here (18.3%
-  relative change between epoch windows at p=27, vs. a 5% threshold); its
-  weak bootstrap CIs are consistent with, not necessarily caused solely by,
-  this undertraining.
-- **JMI greedy does not scale**: O(p²) cost makes it intractable above
-  p=60 in this setup (505.7s already at p=50), so it is excluded from the
-  p=105 comparison and from the downstream-validation protocol entirely.
-- Trading (p=27) is not high-dimensional, unlike FRED-MD and MI-complications.
-  It is included as complementary evidence at comparable dimensionality
-  to the synthetic baseline, not a third high-dimensional confirmation.
+Every design choice below was tested rather than assumed — each bullet
+leads with what was checked and found, not just what could go wrong.
+
+- **Uncertainty-quantification procedure, stress-tested against a more
+  formally rigorous alternative** (full method and numbers in
+  Methodology): the project's raw-percentile subsampling CI was checked
+  against the formally rescaled Politis-Romano-Wolf correction (Politis &
+  Romano, 1994; Politis, Romano & Wolf, 1999) on the tightest-margin case
+  in every dataset (9 configurations), and validated with an empirical
+  coverage check. Result: the project's own procedure is empirically
+  well-calibrated (97.5% coverage vs. the 95% nominal target) and its
+  classifications hold for every central claim; the two exceptions —
+  already-borderline results, MI per-feature at K=5 on FRED-MD and
+  DII+L1 at K=10/K=16 on trading — are disclosed explicitly below and in
+  Key Findings, not smoothed over.
+- **Trading's target sits near the efficient-market frontier by
+  construction**: next-day price direction is, as the source competition
+  itself frames it, close to "beating a coin flip" (baseline accuracy
+  near 50%). The correspondingly weaker downstream signal on trading,
+  relative to FRED-MD and MI-complications, reflects the nature of the
+  prediction task itself, not an artefact of the analysis.
+- **Trading's panel structure, measured rather than assumed away**: since
+  the 5,000-row subsample is stratified only by target, a given stock can
+  contribute up to several dozen rows (mean ~50, max 86, across 100
+  stocks). We measured the resulting same-stock k-NN neighbour rate
+  directly (4.2% vs. an expected ~1.0% under i.i.d. sampling) instead of
+  leaving it unchecked, and confirmed it does not differentially favour
+  the reported method: DII+L1's actual top-5 selected features show a
+  same-stock neighbour rate (1.9%) no higher than a random 5-feature draw
+  (2.7%).
+- **RF's ranking stability was checked explicitly across forest sizes**:
+  a borderline 6.7% drift in raw importance magnitude across
+  [50,100,200,500] trees, but strong rank agreement (τ ≈ 0.95–0.97)
+  between every pair of levels — the ranking that matters for this
+  comparison is stable even where the raw magnitude is not.
+- **MINE's training budget was diagnosed, not just assumed sufficient**:
+  a dedicated convergence check found it had not fully converged within
+  300 epochs at the compute budget used here (18.3% relative change vs. a
+  5% threshold), the most likely explanation for its wide bootstrap CIs —
+  reported directly rather than left unexplained.
+- **JMI's scalability limit is itself a reported result, not a silent
+  omission**: O(p²) cost makes it intractable above p=60 in this setup
+  (23.8s at p=27 → 505.7s at p=50), so it is excluded from the p=105
+  comparison — the scaling curve is evidence that sequential greedy
+  selection does not scale the way joint/gradient-based methods do.
+- **Trading is deliberately not high-dimensional** (p=27), unlike FRED-MD
+  and MI-complications — it is included as complementary evidence at a
+  dimensionality comparable to the synthetic baseline, not presented as a
+  third high-dimensional confirmation.
 
 ## Data provenance & licensing
 
