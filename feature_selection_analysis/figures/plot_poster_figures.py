@@ -249,4 +249,48 @@ plt.savefig('fig_trading.png')
 plt.close()
 print("Saved fig_trading.{pdf,png}")
 
+# =============================================================================
+# FIGURE 5 — Frequentist coverage check: current vs. Politis-Romano-Wolf CI
+# =============================================================================
+# Reads: ../synthetic/coverage_check_results.csv (40 independent replications,
+# II-joint p=27). theta_true = 0.2763, hardcoded from coverage_check_summary.txt
+# (avg tau over 200 independent N=2000 datasets, seeds 1000-1199, disjoint from
+# the 40 test replications below).
+
+cov = pd.read_csv('../synthetic/coverage_check_results.csv')
+theta_true = 0.2763
+n_reps = len(cov)
+cur_cov_pct = cov.current_covers.mean()
+corr_cov_pct = cov.corrected_covers.mean()
+
+fig, axes = plt.subplots(1, 2, figsize=(11, 5.2), sharey=True)
+panels = [
+    (axes[0], 'current_ci_lo', 'current_ci_hi', 'current_covers',
+     f'Current procedure\n{cur_cov_pct:.1%} coverage ({int(cov.current_covers.sum())}/{n_reps})'),
+    (axes[1], 'corrected_ci_lo', 'corrected_ci_hi', 'corrected_covers',
+     f'Politis-Romano-Wolf correction\n{corr_cov_pct:.1%} coverage ({int(cov.corrected_covers.sum())}/{n_reps})'),
+]
+y = np.arange(n_reps)
+for ax, lo_col, hi_col, cov_col, title in panels:
+    colors = np.where(cov[cov_col], GREEN, RED)
+    ax.hlines(y, cov[lo_col], cov[hi_col], color=colors, linewidth=1.8)
+    ax.axvline(theta_true, color='black', lw=1.3, ls='--', zorder=0)
+    ax.set_title(title, fontsize=14)
+    ax.set_xlabel(r"Kendall's $\tau$ (II-joint, p=27)")
+axes[0].set_ylabel('Independent replication')
+axes[0].set_yticks([])
+fig.suptitle(r'Frequentist coverage: 40 independent 95% CIs vs. $\theta_{true}$='
+             + f'{theta_true}', y=1.02, fontsize=15)
+from matplotlib.lines import Line2D
+legend_elems = [Line2D([0], [0], color=GREEN, lw=2.5, label='Contains θ_true'),
+                Line2D([0], [0], color=RED, lw=2.5, label='Misses θ_true'),
+                Line2D([0], [0], color='black', lw=1.3, ls='--', label='θ_true')]
+fig.legend(handles=legend_elems, loc='upper center', bbox_to_anchor=(0.5, 0.02),
+           ncol=3, frameon=False, fontsize=12)
+fig.tight_layout()
+plt.savefig('fig_coverage.pdf', bbox_inches='tight')
+plt.savefig('fig_coverage.png', bbox_inches='tight')
+plt.close()
+print("Saved fig_coverage.{pdf,png}")
+
 print("\nAll figures generated successfully from real CSV data.")

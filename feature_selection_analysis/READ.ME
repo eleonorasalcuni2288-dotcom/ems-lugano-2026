@@ -183,6 +183,15 @@ confirmatory evidence:
   bootstrap-robust, all involving the ZSN (cardiac) complication, via MI
   per-feature (K=3, K=5) and DII+L1 (K=16).
 
+**Future work**: the joint-detection capability demonstrated in the
+present work, on synthetic and real data alike, suggests a natural
+extension to multi-asset financial data, where signals weak in isolation
+might combine into a stronger joint predictor. Preliminary tests already
+implemented on a gold/cyclical-growth pair (see
+`future_work_real_assets/`) show a promising signal; further
+bootstrap-validated studies will be conducted, extending to a larger
+sample and a broader set of assets.
+
 ## Project structure
 
 ```
@@ -237,10 +246,26 @@ feature_selection_analysis/
 │   ├── plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survivors, fig_trading
 │   └── plot_real_data_comparison.py # combined 3-panel real-data figure
 │
+├── future_work_real_assets/   # exploratory, NOT part of the poster or any reported result
+│   ├── build_dataset.py       # real multi-asset panel (yfinance), interaction-pair design
+│   ├── run_methods.py         # first-look MI/II/DII+L1/RF/LASSO point estimates, no bootstrap CI
+│   ├── dataset_feature_selection_2023_2025.csv
+│   └── method_rankings.csv
+│
 └── archive/                   # superseded early-stage scripts (simulation_study v1–v5, first-pass
                                 # trading/DII scripts, paper_draft.tex), kept for history, not used
                                 # by any current result
 ```
+
+`future_work_real_assets/` is a first exploratory pass at the natural
+extension mentioned in the poster's Conclusions: real multi-asset financial
+data, with pairs chosen for a plausible divergence/interaction mechanism
+with the target (not comovement between the two assets, which would be
+redundancy, not synergy). Point estimates only, no bootstrap CI or
+multiple-testing correction yet; one pair (gold / a cyclical-growth stock)
+shows an early promising signal (MI rank ~22/28 individually, DII+L1 rank
+2/28 jointly) but this is not yet held to the same verification standard
+as the rest of the project and should not be read as a confirmed result.
 
 ## Requirements
 
