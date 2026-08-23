@@ -71,10 +71,11 @@ side by side.
 
 ## Methodology
 
-- **Two-level fair comparison**: every method is evaluated both per-feature
-  (independent scores) and jointly (leave-one-out backward elimination, or
-  direct joint gradient optimisation for DII), so no method is compared
-  per-feature against another's joint result.
+- **Two-level fair comparison: MI and II are evaluated both per-feature 
+   (independent scores) and jointly (leave-one-out backward elimination, 
+   or direct joint gradient optimisation for DII); DII, MINE, RF, and LASSO 
+   (inherently joint methods by construction) are evaluated jointly only,
+   so no method is compared per-feature against another's joint result.
 - **Bootstrap CI**: 80% subsampling *without* replacement (not classic
   with-replacement bootstrap, chosen to avoid zero-distance duplicate-
   neighbour artefacts in the distance-based methods, II and DII), ranking
@@ -267,15 +268,6 @@ feature_selection_analysis/
                                 # by any current result
 ```
 
-`future_work_real_assets/` is a first exploratory pass at the natural
-extension mentioned in the poster's Conclusions: real multi-asset financial
-data, with pairs chosen for a plausible divergence/interaction mechanism
-with the target (not comovement between the two assets, which would be
-redundancy, not synergy). Point estimates only, no bootstrap CI or
-multiple-testing correction yet; one pair (gold / a cyclical-growth stock)
-shows an early promising signal (MI rank ~22/28 individually, DII+L1 rank
-2/28 jointly) but this is not yet held to the same verification standard
-as the rest of the project and should not be read as a confirmed result.
 
 ## Requirements
 
