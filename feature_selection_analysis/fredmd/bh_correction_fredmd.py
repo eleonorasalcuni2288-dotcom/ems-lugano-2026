@@ -6,7 +6,7 @@ values = 16 significance tests (one empirical p-value per method/K, from
 evaluate_method_vs_baseline's n_random=100 comparison), but until now no
 multiple-testing correction was applied to them — unlike MI-complications,
 whose 176 per-target tests already get BH correction
-(mi_complications_per_target.py). This closes that asymmetry, applying the
+(post_infarction_per_target.py). This closes that asymmetry, applying the
 identical procedure to FRED-MD's own 16 tests.
 
 Uses the existing fredmd_downstream_results.csv (no retraining, no new

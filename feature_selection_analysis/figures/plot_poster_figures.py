@@ -85,7 +85,7 @@ p_levels = [27, 50, 105]
 methods = ['MI_perfeat', 'II_perfeat', 'II_joint', 'DII_L1']  # used by Figures 2 & 3
 methods_fig1 = methods + ['MINE', 'RF', 'LASSO']  # Figure 1 only (fuller method coverage)
 
-fig, axes = plt.subplots(1, 2, figsize=(17, 4.2))
+fig, axes = plt.subplots(1, 2, figsize=(17, 5.4))
 
 ax = axes[0]
 offsets = {'MI_perfeat': -3.6, 'II_perfeat': -2.4, 'II_joint': -1.2,
@@ -107,10 +107,11 @@ for method in methods_fig1:
                 elinewidth=1.8, capthick=1.8)
     ax.scatter(x, pts, marker='x', color=COLORS[method], s=55, zorder=5)
 ax.set_xticks(p_levels)
-ax.set_xlabel('Number of features $p$')
-ax.set_ylabel(r"Kendall's $\tau$ vs. ground truth")
-ax.set_title('(a) Ranking accuracy: bootstrap 95% CI\n(x = full-sample point estimate)')
+ax.set_xlabel('Number of features $p$', fontsize=20)
+ax.set_ylabel(r"Kendall's $\tau$ vs. ground truth", fontsize=20)
+ax.set_title('(a) Ranking accuracy: bootstrap 95% CI\n(x = full-sample point estimate)', fontsize=19)
 ax.axhline(0, color=GRAY, lw=0.8, ls=':')
+ax.tick_params(axis='both', labelsize=17)
 legend_handles, legend_labels = ax.get_legend_handles_labels()
 
 ax = axes[1]
@@ -126,14 +127,15 @@ for method in methods_fig1:
     ax.plot(p_levels, ranks, 'o-', color=COLORS[method], label=LABELS[method],
              markersize=7, linewidth=2)
 ax.set_xticks(p_levels)
-ax.set_xlabel('Number of features $p$')
-ax.set_ylabel('Avg. rank of synergistic (XOR) pair\n(lower = correctly detected)')
-ax.set_title('(b) Synergy-pair detection vs. dimensionality')
+ax.set_xlabel('Number of features $p$', fontsize=20)
+ax.set_ylabel('Avg. synergy-pair rank\n(lower = correctly detected)', fontsize=20)
+ax.set_title('(b) Synergy-pair detection vs. dimensionality', fontsize=19)
+ax.tick_params(axis='both', labelsize=17)
 
+fig.subplots_adjust(left=0.075, right=0.98, top=0.68, bottom=0.18, wspace=0.38)
 fig.legend(legend_handles, legend_labels, loc='upper center',
-           bbox_to_anchor=(0.5, 1.14), ncol=7, frameon=False, fontsize=12)
+           bbox_to_anchor=(0.5, 1.0), ncol=4, frameon=False, fontsize=16)
 
-plt.tight_layout()
 plt.savefig('fig_scalability.pdf', bbox_inches='tight')
 plt.savefig('fig_scalability.png', bbox_inches='tight')
 plt.close()
@@ -180,7 +182,7 @@ print("Saved fig_fredmd.{pdf,png}")
 # real columns: complication, method, K, mean_advantage, ci_lo, ci_hi, std,
 # frac_positive, B  (no 'label' or 'robust' column — both derived below)
 
-mi_surv = pd.read_csv('../mi_complications/bootstrap_ci_mi_survivors_results.csv')
+mi_surv = pd.read_csv('../post_infarction/bootstrap_ci_mi_survivors_results.csv')
 mi_surv['label'] = (mi_surv['complication'] + ' · ' + mi_surv['method']
                      + ' · K=' + mi_surv['K'].astype(str))
 mi_surv['robust'] = mi_surv['ci_lo'] > 0

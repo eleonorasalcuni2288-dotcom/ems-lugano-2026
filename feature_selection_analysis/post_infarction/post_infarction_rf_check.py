@@ -2,7 +2,7 @@
 MI Complications — Random Forest Secondary Check
 ====================================================
 Re-evaluates the SAME feature rankings already computed and saved by
-mi_complications_analysis.py (mi_complications_rankings.csv), but using
+post_infarction_analysis.py (post_infarction_rankings.csv), but using
 Random Forest + 5-fold CV instead of k-NN + LOO for the downstream
 validation. Purpose: rule out that the null result seen with k-NN was
 an artifact of k-NN's Euclidean-distance metric, which is a known weak
@@ -12,9 +12,9 @@ continuous ones (as here).
 Does NOT recompute MI/II/DII rankings (that requires re-running DII,
 the slow ~1min step) — reuses the rankings CSV already produced.
 
-Run from the same folder as mi_complications_analysis.py and MI.data,
+Run from the same folder as post_infarction_analysis.py and MI.data,
 with the venv activated:
-    python3 mi_complications_rf_check.py
+    python3 post_infarction_rf_check.py
 """
 import warnings; warnings.filterwarnings('ignore')
 import time
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     print("MI COMPLICATIONS — RANDOM FOREST SECONDARY CHECK")
     print("=" * 70)
 
-    # ---- 1. Reconstruct X, y exactly as in mi_complications_analysis.py ---
+    # ---- 1. Reconstruct X, y exactly as in post_infarction_analysis.py ---
     print("\n[1/3] Reloading and rebuilding data (same steps as before)...")
     df = pd.read_csv("MI.data", header=None, na_values='?')
     HIGH_MISSING_COLS = [7, 34, 35, 88]
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     # ---- 2. Load the already-computed rankings ----------------------------
     print("\n[2/3] Loading previously computed rankings...")
-    rankings_df = pd.read_csv("mi_complications_rankings.csv")
+    rankings_df = pd.read_csv("post_infarction_rankings.csv")
     methods = {
         'MI_perfeat': rankings_df['MI_perfeat_Rank'].values,
         'II_perfeat': rankings_df['II_perfeat_Rank'].values,
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     assert len(rankings_df) == X.shape[1], (
         f"Rankings file has {len(rankings_df)} rows but X has "
         f"{X.shape[1]} columns — did the cleaning step change since the "
-        f"rankings were computed? Re-run mi_complications_analysis.py first."
+        f"rankings were computed? Re-run post_infarction_analysis.py first."
     )
 
     # ---- 3. RF downstream validation --------------------------------------
@@ -79,8 +79,8 @@ if __name__ == "__main__":
     print(f"\nTotal RF check time: {(time.time()-t0)/60:.1f} min")
 
     rows = [r for res in all_results.values() for r in res]
-    pd.DataFrame(rows).to_csv('mi_complications_rf_results.csv', index=False)
-    print("Saved: mi_complications_rf_results.csv")
+    pd.DataFrame(rows).to_csv('post_infarction_rf_results.csv', index=False)
+    print("Saved: post_infarction_rf_results.csv")
 
     print("\n" + "=" * 70)
     print("DONE")

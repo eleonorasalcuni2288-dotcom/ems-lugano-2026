@@ -36,7 +36,7 @@ METHOD_LABELS = {'MI_perfeat': 'MI (per-feature)', 'II_perfeat': 'II (per-featur
 # Panel A — MI complications: forest plot of the 7 BH survivors
 # =============================================================================
 def plot_mi_survivors(ax):
-    df = pd.read_csv('../mi_complications/bootstrap_ci_mi_survivors_results.csv')
+    df = pd.read_csv('../post_infarction/bootstrap_ci_mi_survivors_results.csv')
     df['label'] = df['complication'] + ' · ' + df['method'] + ' · K=' + df['K'].astype(str)
     df['robust'] = df['ci_lo'] > 0
     df = df.sort_values('mean_advantage', ascending=True).reset_index(drop=True)

@@ -1,7 +1,7 @@
 """
 Bootstrap CI — All 7 BH-Correction Survivors (MI Complications)
 ======================================================================
-The per-complication analysis (mi_complications_per_target.py) found 7
+The per-complication analysis (post_infarction_per_target.py) found 7
 (complication, method, K) combinations surviving Benjamini-Hochberg
 correction across 176 tests:
 

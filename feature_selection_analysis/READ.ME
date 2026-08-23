@@ -14,14 +14,15 @@ Feature selection methods can disagree substantially on which features
 matter most, and this disagreement is not merely noise: it reflects
 genuine differences in what each method measures (correlation, k-NN
 geometry, or a learned neural bound) and in how each scales with
-dimensionality. This project runs six methods head-to-head under one
-controlled experimental protocol:
+dimensionality. This project runs six methods (eight method-level
+configurations, since MI and II are each evaluated per-feature and
+jointly) head-to-head under one controlled experimental protocol:
 
 1. **Synthetic benchmark** (p=27/50/105, known ground-truth ranking
    including a synergistic XOR-type feature pair invisible to per-feature
    methods), which lets each method's ranking be checked directly against
    the true feature importance.
-2. **Three real datasets** (FRED-MD macro-financial panel, MI-complications
+2. **Three real datasets** (FRED-MD macro-financial panel, post-infarction
    clinical data, trading time series), where there is no ground truth, so
    methods are instead validated by whether their selected features actually
    improve downstream k-NN classification accuracy over a random baseline,
@@ -62,10 +63,10 @@ not purely historical.
 | Synthetic benchmark | 2,000 | 27 / 50 / 105 | continuous Y, known generative process incl. one XOR-type synergy pair | ground-truth check |
 | Trading (`train2.csv`) | 5,000 (stratified subsample of 440,402) | 27 | next-day price direction (100 anonymized stocks, ~50.3% positive) | real-data domain, comparable dimensionality to the synthetic baseline (p=27) |
 | FRED-MD | 794 | 120 | S&P 500 monthly return, median-split binarised | real-data domain (macro-financial, high-dimensional) |
-| MI complications | 1,700 | 107 | any of 11 binary post-infarction complications | real-data domain (clinical, high-dimensional, no ground truth) |
+| Post-infarction complications | 1,700 | 107 | any of 11 binary post-infarction complications | real-data domain (clinical, high-dimensional, no ground truth) |
 
 Datasets are grouped by comparable dimensionality in the poster: synthetic
-and trading (p≈27) side by side, FRED-MD and MI complications (p≈100–120)
+and trading (p≈27) side by side, FRED-MD and post-infarction complications (p≈100–120)
 side by side.
 
 ## Methodology
@@ -95,26 +96,27 @@ side by side.
   do not always agree, on any of the three datasets, which is reported
   honestly rather than picking whichever criterion looks stronger.
 - **A stress-test of the uncertainty-quantification procedure itself**:
-  the project's subsampling-based CIs are checked against the formally
-  rescaled Politis-Romano-Wolf subsampling correction on the
-  tightest-margin case in every dataset (9 configurations total),
-  confirming the central claims are robust to this choice of procedure,
-  while identifying which specific results are close enough to the zero
-  boundary to be sensitive to it. A follow-up empirical coverage check
-  found the project's own procedure achieves 97.5% coverage of the true
-  value (close to the 95% nominal target, mildly conservative), while the
-  formally corrected procedure achieves only 70.0% here — under-covering,
-  consistent with its asymptotic assumptions not holding at 80%
-  subsampling. Full results in Scope, Design Choices & Robustness Checks.
+  the project's subsampling-based CIs are checked against the rescaled
+  Politis-Romano-Wolf subsampling correction on the tightest-margin case
+  in every dataset (14 configurations total: 1 synthetic, 4+4 FRED-MD
+  MI/DII, 3 post-infarction, 2 trading), confirming the central claims
+  are robust to this choice of procedure, while identifying which
+  specific results are close enough to the zero boundary to be sensitive
+  to it. A follow-up empirical coverage check found the project's own
+  procedure achieves 97.5% coverage of the true value (close to the 95%
+  nominal target, mildly conservative), while the Politis-Romano-Wolf
+  procedure achieves only 70.0% here — under-covering, consistent with
+  its asymptotic assumptions not holding at 80% subsampling. Full
+  results in Scope, Design Choices & Robustness Checks.
 
 ## Key findings
 
 **DII+L1 is the only method with a downstream advantage in all three real
 datasets under the project's own bootstrap procedure**, and the only
 method that is simultaneously accurate and robust to synergy detection on
-the synthetic benchmark. A follow-up verification against a more formally
-rigorous resampling correction (see Scope, Design Choices & Robustness
-Checks) confirmed this holds for FRED-MD and MI complications, but
+the synthetic benchmark. A follow-up verification against the
+Politis-Romano-Wolf resampling correction (see Scope, Design Choices &
+Robustness Checks) confirmed this holds for FRED-MD and post-infarction complications, but
 **not** for trading, whose result — already the weakest of the three by
 several other measures — is best read as complementary rather than
 confirmatory evidence:
@@ -139,14 +141,15 @@ confirmatory evidence:
   superior *raw* ranking accuracy (LASSO and Random Forest are both
   competitive there), but the ability to detect synergistic dependencies
   that per-feature, linear, and tree-ensemble methods alike structurally
-  cannot see. Random Forest has the
-  strongest raw ranking accuracy of any method (τ up to 0.50, CI never
-  crossing zero) but never ranks the synergy pair above 14th, and dilutes
-  importance across near-duplicate features (23% concentration on the
-  best copy vs. 43% for DII+L1). MINE's bootstrap CI crosses zero at
-  every p (τ −0.081 to 0.073) and its own synergy detection collapses
-  most abruptly of all methods, from rank ~2 to ~89 between p=50 and
-  p=105, consistent with the modest sample size relative to what neural
+  cannot see. Random Forest also has strong raw ranking accuracy
+  (τ up to 0.50, CI never crossing zero, on par with MI per-feature's
+  own peak of 0.51 at p=50) but never ranks the synergy pair above
+  14th, and dilutes importance across near-duplicate features (23%
+  concentration on the best copy vs. 43% for DII+L1). MINE's
+  bootstrap CI crosses zero at every p (τ −0.081 to 0.073) and its
+  own synergy detection collapses most abruptly of all methods, from
+  rank ~2 to ~89 between p=50 and p=105, consistent with the modest
+  sample size relative to what neural
   MI estimators typically require. A dedicated hyperparameter check on
   DII+L1 itself (mirroring RF's n_estimators test and MINE's convergence
   check) shows XOR-pair detection unchanged (rank 1–2) across l1_strength
@@ -156,7 +159,7 @@ confirmatory evidence:
   (std=0.000), DII's training here is full-batch (`batches_per_epoch=1`)
   and effectively deterministic, not stochastic the way MINE's is.
 - **Trading**: at full resolution (B=100 for MI/II, B=15 for DII, matching
-  FRED-MD/MI-complications exactly), DII+L1's bootstrap CI excludes zero
+  FRED-MD/post-infarction exactly), DII+L1's bootstrap CI excludes zero
   at K=10 (+0.018 [0.004, 0.026]) and K=16 (+0.015 [0.006, 0.025]), the
   *only* robust result on this dataset under the project's own procedure.
   II per-feature's apparent K=3 robustness at a smaller preliminary
@@ -164,22 +167,22 @@ confirmatory evidence:
   [−0.019, 0.017], fragile), a genuine correction, not noise in the other
   direction: more draws revealed a false positive, not a false negative.
   **None of DII+L1's results survive BH correction** for the dataset's 16
-  tests either, and neither K=10 nor K=16 survives the formally corrected
+  tests either, and neither K=10 nor K=16 survives the Politis-Romano-Wolf
   resampling CI (see Scope, Design Choices & Robustness Checks) — both
   margins were tight enough (ci_lo +0.004 and +0.006) that the
   correction's re-centring pushes them through zero. Trading's downstream
   signal is the weakest of the three real datasets by every criterion
   applied.
 - **FRED-MD**: DII+L1's bootstrap CI excludes zero at all 4 K (advantage
-  +0.03 to +0.13), independently re-confirmed under the formally
-  corrected resampling CI at all 4 K (see Scope, Design Choices &
+  +0.03 to +0.13), independently re-confirmed under the Politis-Romano-Wolf
+  resampling CI at all 4 K (see Scope, Design Choices &
   Robustness Checks); under BH correction, DII+L1 at K=5/10/16 and MI
   per-feature at K=10 remain significant (4/16 total), while DII+L1 at
   K=3 and MI per-feature at K=5, both bootstrap-robust under the
   project's procedure, do not
   survive BH correction — and MI per-feature at K=5 additionally does not
-  survive the formally corrected resampling CI either (K=10 does).
-- **MI complications**: of 7 BH survivors, only 3 are also
+  survive the Politis-Romano-Wolf resampling CI either (K=10 does).
+- **Post-infarction complications**: of 7 BH survivors, only 3 are also
   bootstrap-robust, all involving the ZSN (cardiac) complication, via MI
   per-feature (K=3, K=5) and DII+L1 (K=16).
 
@@ -216,31 +219,37 @@ feature_selection_analysis/
 │   ├── validate_downstream_synthetic.py    # sanity check: ranking-by-accuracy vs ranking-by-tau
 │   ├── dii_diagnostics.py                  # DII+L1 sensitivity: L1-strength sweep + cross-seed check
 │   ├── mi_diagnostics.py                   # MI sensitivity: n_neighbors sweep + cross-seed check
-│   └── lasso_synthetic_highdim.py          # LASSO baseline, p=27/50/105 (closest classical
-│                                            #   competitor to DII+L1: both rank via sparsity penalty)
+│   ├── lasso_synthetic_highdim.py          # LASSO baseline, p=27/50/105 (closest classical
+│   │                                        #   competitor to DII+L1: both rank via sparsity penalty)
+│   ├── subsampling_correction_check_synthetic.py  # Politis-Romano-Wolf spot-check, II-joint p=27
+│   └── coverage_check.py                   # frequentist coverage check (97.5% vs 70.0%)
 │
 ├── fredmd/                    # macro-financial, N=794, p=120
 │   ├── 2026-07-MD.csv         # raw FRED-MD panel
 │   ├── fredmd_analysis.py     # rankings + point-estimate downstream validation
 │   ├── bootstrap_ci_fredmd.py
 │   ├── bh_correction_fredmd.py    # Benjamini-Hochberg on the 16 method x K tests
-│   └── verify_fredmd_balanced.py
+│   ├── verify_fredmd_balanced.py
+│   ├── subsampling_correction_check.py     # Politis-Romano-Wolf spot-check, MI_perfeat, all 4 K
+│   └── subsampling_correction_check_dii.py # Politis-Romano-Wolf spot-check, DII+L1, all 4 K
 │
-├── mi_complications/          # clinical, N=1700, p=107
+├── post_infarction/          # clinical, N=1700, p=107
 │   ├── MI.data                # raw UCI/Leicester dataset
-│   ├── mi_complications_analysis.py
-│   ├── mi_complications_per_target.py      # per-complication sweep (176 tests) + BH correction
-│   ├── mi_complications_rf_check.py
+│   ├── post_infarction_analysis.py
+│   ├── post_infarction_per_target.py      # per-complication sweep (176 tests) + BH correction
+│   ├── post_infarction_rf_check.py
 │   ├── bootstrap_ci_mi_aggregate.py
 │   ├── bootstrap_mi_survivors.py           # bootstrap CI on the 7 BH survivors
 │   ├── verify_mi_rf_balanced.py
-│   └── reverify_balanced_accuracy.py
+│   ├── reverify_balanced_accuracy.py
+│   └── subsampling_correction_check.py     # Politis-Romano-Wolf spot-check, the 3 ZSN survivors
 │
 ├── trading/                   # N=5000 (subsample of 440,402), p=27
 │   ├── train2.csv              # gitignored (110MB, over GitHub's 100MB limit)
 │   ├── real_data_analysis.py
 │   ├── trading_downstream_validation.py
-│   └── bh_correction_trading.py   # Benjamini-Hochberg on the 16 method x K tests
+│   ├── bh_correction_trading.py   # Benjamini-Hochberg on the 16 method x K tests
+│   └── subsampling_correction_check_dii.py # Politis-Romano-Wolf spot-check, DII+L1, K=10/16
 │
 ├── figures/                   # poster figures (matplotlib, PDF+PNG) + the scripts that build them
 │   ├── plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survivors, fig_trading
@@ -312,16 +321,19 @@ Every design choice below was tested rather than assumed: each bullet
 leads with what was checked and found, not just what could go wrong.
 
 - **Uncertainty quantification**: the raw-percentile subsampling CI was
-  validated against the rescaled Politis-Romano-Wolf method across the 9
-  tightest-margin configurations. The primary procedure achieves 97.5%
-  empirical coverage against a 95% nominal target, confirming all
-  central claims. The only exceptions are borderline results for
+  validated against the rescaled Politis-Romano-Wolf method across 14
+  tightest-margin configurations (1 synthetic, 4+4 FRED-MD MI/DII, 3
+  post-infarction, 2 trading). The primary procedure achieves 97.5%
+  empirical coverage against a 95% nominal target, versus 70.0% for the
+  Politis-Romano-Wolf correction, and 12 of the 14 configurations keep
+  the same robust/fragile classification either way. The only exceptions
+  (2 of 14) are borderline results for
   per-feature MI at K=5 on FRED-MD and DII+L1 at K=10 and K=16 on the
   trading dataset.
 - **Trading baseline signal**: next-day price direction sits near the
   efficient-market frontier, with baseline accuracy close to random
   chance. The lower downstream signal on trading relative to FRED-MD and
-  MI-complications reflects the task's intrinsic difficulty.
+  post-infarction complications reflects the task's intrinsic difficulty.
 - **Trading panel dependencies**: the 5,000-row subsample yields a
   same-stock k-NN neighbour rate of 4.2% versus 1.0% expected under
   i.i.d. sampling. This structure does not favour the proposed method:
@@ -339,7 +351,7 @@ leads with what was checked and found, not just what could go wrong.
   23.8 seconds at p=27 to 505.7 seconds at p=50, making it intractable
   beyond p=60. It is therefore excluded from the p=105 experiments.
 - **Dimensionality scope**: trading is deliberately not high-dimensional
-  (p=27), unlike FRED-MD and MI-complications (p=107–120). It is
+  (p=27), unlike FRED-MD and post-infarction complications (p=107–120). It is
   included precisely because its dimensionality matches the synthetic
   benchmark, isolating the real vs. synthetic comparison from the low
   vs. high-dimensional one: without it, any gap between synthetic and
@@ -353,7 +365,7 @@ leads with what was checked and found, not just what could go wrong.
   (Federal Reserve Bank of St. Louis): public-domain or permission-granted
   series only. Redistributed here with attribution; cite McCracken & Ng
   (2016) when using this data.
-- **`mi_complications/MI.data`**: Golovenkin et al. (2020), dataset DOI:
+- **`post_infarction/MI.data`**: Golovenkin et al. (2020), dataset DOI:
   10.25392/leicester.data.12045261.v3 (UCI Machine Learning Repository /
   University of Leicester), CC BY 4.0 licensed, sharing and adaptation
   permitted with attribution; cite the *GigaScience* paper above when
@@ -391,12 +403,12 @@ leads with what was checked and found, not just what could go wrong.
     applications to myocardial infarction and diabetes data.
     *GigaScience*, 9(11), giaa128.
 
-[7] Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery
+[7] Saleeby, J. (2026). Stock Market Signal: Predict Next-Day Returns.
+    Kaggle.
+
+[8] Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery
     rate: A practical and powerful approach to multiple testing. *Journal
     of the Royal Statistical Society, Series B*, 57(1), 289–300.
-
-[8] Efron, B. (1979). Bootstrap methods: Another look at the jackknife.
-    *The Annals of Statistics*, 7(1), 1–26.
 
 [9] Belghazi, M. I., Baratin, A., Rajeshwar, S., Ozair, S., Bengio, Y.,
     Courville, A., & Hjelm, R. D. (2018). MINE: Mutual information neural

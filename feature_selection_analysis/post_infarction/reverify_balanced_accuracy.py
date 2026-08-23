@@ -21,7 +21,7 @@ pipeline for no expected benefit — skipped to save time, but flagged if
 you want it done for completeness.
 
 Run from the project folder (needs simulation_study_v6_highdim.py,
-downstream_validation.py, MI.data, mi_complications_rankings.csv all
+downstream_validation.py, MI.data, post_infarction_rankings.csv all
 present).
 """
 import warnings; warnings.filterwarnings('ignore')
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     print(f"Target balance: {y_mi.sum()}/{len(y_mi)} "
           f"({100*y_mi.mean():.1f}%)")
 
-    rankings_df = pd.read_csv("mi_complications_rankings.csv")
+    rankings_df = pd.read_csv("post_infarction_rankings.csv")
     methods_mi = {
         'MI_perfeat': rankings_df['MI_perfeat_Rank'].values,
         'II_perfeat': rankings_df['II_perfeat_Rank'].values,

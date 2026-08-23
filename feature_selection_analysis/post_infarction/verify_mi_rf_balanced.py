@@ -2,17 +2,17 @@
 Verification: balanced-accuracy impact on MI complications RF check
 ======================================================================
 Checks the claim that switching to balanced accuracy has negligible
-impact on mi_complications_rf_results.csv (computed before the switch).
+impact on post_infarction_rf_results.csv (computed before the switch).
 Unlike FRED-MD (exact 50/50), the aggregate MI complications target is
 55/45 — NOT an exact split, so plain and balanced accuracy are not
 mathematically guaranteed to coincide here. This verification actually
 tests that, rather than assuming it.
 
-Reuses the ALREADY-COMPUTED rankings (mi_complications_rankings.csv) —
+Reuses the ALREADY-COMPUTED rankings (post_infarction_rankings.csv) —
 no DII retraining needed.
 
-Run from the project folder (needs MI.data, mi_complications_rankings.csv,
-downstream_validation.py, mi_complications_rf_results.csv).
+Run from the project folder (needs MI.data, post_infarction_rankings.csv,
+downstream_validation.py, post_infarction_rf_results.csv).
 """
 import warnings; warnings.filterwarnings('ignore')
 import numpy as np
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     X_scaled = scaler.fit_transform(X)
 
     print("\n[2/3] Loading saved rankings (no DII retraining needed)...")
-    rankings_df = pd.read_csv("mi_complications_rankings.csv")
+    rankings_df = pd.read_csv("post_infarction_rankings.csv")
     assert len(rankings_df) == X.shape[1], (
         f"Rankings file has {len(rankings_df)} rows but X has "
         f"{X.shape[1]} columns — mismatch, cannot proceed safely.")
@@ -79,7 +79,7 @@ if __name__ == "__main__":
             new_rows.append(r)
 
     new_df = pd.DataFrame(new_rows)
-    old_df = pd.read_csv("mi_complications_rf_results.csv")
+    old_df = pd.read_csv("post_infarction_rf_results.csv")
 
     print("\n" + "=" * 70)
     print("COMPARISON: old (plain accuracy) vs new (balanced accuracy)")

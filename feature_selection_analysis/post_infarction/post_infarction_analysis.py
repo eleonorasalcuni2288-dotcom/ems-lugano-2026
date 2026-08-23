@@ -148,14 +148,14 @@ if __name__ == "__main__":
         for r in res:
             rows.append(r)
     results_df = pd.DataFrame(rows)
-    results_df.to_csv('mi_complications_downstream_results.csv', index=False)
-    print("\nSaved: mi_complications_downstream_results.csv")
+    results_df.to_csv('post_infarction_downstream_results.csv', index=False)
+    print("\nSaved: post_infarction_downstream_results.csv")
 
     rankings_df = pd.DataFrame({'Feature_ID': feature_ids})
     for name, ranks in methods.items():
         rankings_df[f'{name}_Rank'] = ranks
-    rankings_df.to_csv('mi_complications_rankings.csv', index=False)
-    print("Saved: mi_complications_rankings.csv")
+    rankings_df.to_csv('post_infarction_rankings.csv', index=False)
+    print("Saved: post_infarction_rankings.csv")
 
     print("\n" + "=" * 70)
     print("DONE")

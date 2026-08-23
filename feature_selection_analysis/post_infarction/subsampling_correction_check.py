@@ -9,7 +9,7 @@ ZSN/DII_L1/K=16 -- these are explicitly highlighted in the poster's Key
 Findings and Figure 4 caption as the strongest evidence in this dataset.
 
 theta_hat_n (full-sample point estimate) is read directly from the
-existing mi_complications_per_target_results.csv rather than retrained.
+existing post_infarction_per_target_results.csv rather than retrained.
 Only the B subsample draws are rerun, with raw per-draw values saved.
 
 Does not modify any existing file.
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     b = int(round(n * SUBSAMPLE_FRAC))
     print(f"n={n}  b={b}")
 
-    point_df = pd.read_csv('mi_complications_per_target_results.csv')
+    point_df = pd.read_csv('post_infarction_per_target_results.csv')
 
     all_rows = []
     for comp_name, method, K, B in CHECKS:
@@ -75,7 +75,7 @@ if __name__ == "__main__":
                         & (point_df.K == K)].iloc[0]
         theta_n = row.method_acc - row.baseline_mean
         print(f"\n=== {comp_name}/{method}/K={K} (B={B}) ===")
-        print(f"  theta_hat_n = {theta_n:+.4f} (from mi_complications_per_target_results.csv)")
+        print(f"  theta_hat_n = {theta_n:+.4f} (from post_infarction_per_target_results.csv)")
 
         rng = np.random.default_rng(SEED)
         draws = np.empty(B)

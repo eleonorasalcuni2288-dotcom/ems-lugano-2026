@@ -130,8 +130,8 @@ if __name__ == "__main__":
 
     # ---- 3. Summary with multiple-testing correction -----------------------
     results_df = pd.DataFrame(all_rows)
-    results_df.to_csv('mi_complications_per_target_results.csv', index=False)
-    print("\nSaved: mi_complications_per_target_results.csv")
+    results_df.to_csv('post_infarction_per_target_results.csv', index=False)
+    print("\nSaved: post_infarction_per_target_results.csv")
 
     valid = results_df.dropna(subset=['p_value']).copy()
     valid = valid.sort_values('p_value').reset_index(drop=True)
