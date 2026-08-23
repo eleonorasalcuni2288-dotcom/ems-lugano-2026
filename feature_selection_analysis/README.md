@@ -201,7 +201,7 @@ sample and a broader set of assets.
 
 ```
 feature_selection_analysis/
-├── READ.ME
+├── README.md
 ├── requirements.txt
 │
 ├── common/
