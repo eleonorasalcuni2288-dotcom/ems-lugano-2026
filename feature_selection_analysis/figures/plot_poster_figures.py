@@ -108,7 +108,7 @@ for method in methods_fig1:
     ax.scatter(x, pts, marker='x', color=COLORS[method], s=55, zorder=5)
 ax.set_xticks(p_levels)
 ax.set_xlabel('Number of features $p$', fontsize=20)
-ax.set_ylabel(r"Kendall's $\tau$ vs. ground truth", fontsize=20)
+ax.set_ylabel("Kendall's $\\tau$\n(agreement with ground truth)", fontsize=20)
 ax.set_title('(a) Ranking accuracy: bootstrap 95% CI\n(x = full-sample point estimate)', fontsize=19)
 ax.axhline(0, color=GRAY, lw=0.8, ls=':')
 ax.tick_params(axis='both', labelsize=17)
@@ -176,7 +176,7 @@ plt.close()
 print("Saved fig_fredmd.{pdf,png}")
 
 # =============================================================================
-# FIGURE 3 — MI complications: BH-survivors bootstrap CI
+# FIGURE 3 — Post-infarction complications: BH-survivors bootstrap CI
 # =============================================================================
 # Reads: bootstrap_ci_mi_survivors_results.csv
 # real columns: complication, method, K, mean_advantage, ci_lo, ci_hi, std,
@@ -198,7 +198,7 @@ ax.axvline(0, color='black', lw=1)
 ax.set_yticks(y_pos)
 ax.set_yticklabels(mi_surv.label.values, fontsize=12)
 ax.set_xlabel('Downstream accuracy advantage (bootstrap 95% CI)')
-ax.set_title('MI complications: all 7 configurations surviving\nBenjamini-Hochberg correction')
+ax.set_title('Post-infarction complications: all 7 configurations surviving\nBenjamini-Hochberg correction')
 ax.invert_yaxis()
 from matplotlib.lines import Line2D
 legend_elems = [Line2D([0], [0], marker='o', color='w', markerfacecolor=GREEN,
@@ -213,7 +213,7 @@ plt.close()
 print("Saved fig_mi_survivors.{pdf,png}")
 
 # =============================================================================
-# FIGURE 4 — Trading (train2.csv) bootstrap advantage (4 methods x 4 K)
+# FIGURE 4 — Trading bootstrap advantage (4 methods x 4 K)
 # =============================================================================
 # Reads: bootstrap_ci_trading_results.csv (same schema as fredmd's file).
 # Same bar-chart style as Figure 2 for direct visual consistency across the
@@ -243,7 +243,7 @@ ax.axhline(0, color='black', lw=1)
 ax.set_xticks(x)
 ax.set_xticklabels([f'K={k}' for k in K_values_tr])
 ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=14)
-ax.set_title('Trading (train2.csv, p=27): bootstrap 95% CI on predictive advantage', pad=45)
+ax.set_title('Trading (p=27): bootstrap 95% CI on predictive advantage', pad=45)
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.22), frameon=False, ncol=4, fontsize=12)
 fig.subplots_adjust(left=0.12, right=0.98, top=0.72, bottom=0.15)
 plt.savefig('fig_trading.pdf')
