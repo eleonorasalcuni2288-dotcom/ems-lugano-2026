@@ -71,11 +71,11 @@ side by side.
 
 ## Methodology
 
-- **Two-level fair comparison: MI and II are evaluated both per-feature 
-   (independent scores) and jointly (leave-one-out backward elimination, 
-   or direct joint gradient optimisation for DII); DII, MINE, RF, and LASSO 
-   (inherently joint methods by construction) are evaluated jointly only,
-   so no method is compared per-feature against another's joint result.
+- **Two-level fair comparison**: MI and II are evaluated both per-feature
+  (independent scores) and jointly (leave-one-out backward elimination,
+  or direct joint gradient optimisation for DII); DII, MINE, RF, and LASSO
+  (inherently joint methods by construction) are evaluated jointly only,
+  so no method is compared per-feature against another's joint result.
 - **Bootstrap CI**: 80% subsampling *without* replacement (not classic
   with-replacement bootstrap, chosen to avoid zero-distance duplicate-
   neighbour artefacts in the distance-based methods, II and DII), ranking
