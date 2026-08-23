@@ -86,7 +86,7 @@ side by side.
   accuracy advantage with a bootstrap 95% CI. An advantage is called
   *robust* only if its CI excludes zero.
 - **Multiple-testing correction**: applied uniformly to all three real
-  datasets, not only the one where it happened to matter most.
+  datasets.
   Post-infarction complications tests 11 complications × 4 methods × 4
   K values (176 tests): Benjamini–Hochberg correction leaves 7
   survivors, of which only
