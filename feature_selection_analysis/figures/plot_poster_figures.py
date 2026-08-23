@@ -32,17 +32,18 @@ mpl.rcParams.update({
     'figure.dpi': 300,
 })
 
-NAVY = '#102A43'
-ACCENT = '#0076A8'
-RED = '#C0392B'
-GREEN = '#1E8449'
-ORANGE = '#D68910'
+NAVY = '#4F5A6B'
+ACCENT = '#1F5FAD'
+RED = '#D8432B'
+GREEN = '#3D8F52'
+ORANGE = '#C4941F'
 GRAY = '#8A94A6'
-PURPLE = '#7D3C98'
-TEAL = '#138D8D'
+PURPLE = '#7D52B0'
+TEAL = '#0F9E73'
+AZURE = '#2CA8E0'
 
-COLORS = {'MI_perfeat': ACCENT, 'II_perfeat': GREEN, 'II_joint': ORANGE, 'DII_L1': RED,
-          'MINE': PURPLE, 'RF': TEAL, 'LASSO': NAVY}
+COLORS = {'MI_perfeat': ACCENT, 'II_perfeat': AZURE, 'II_joint': ORANGE, 'DII_L1': TEAL,
+          'MINE': NAVY, 'RF': RED, 'LASSO': PURPLE}
 LABELS = {'MI_perfeat': 'MI (per-feature)', 'II_perfeat': 'II (per-feature)',
           'II_joint': 'II (joint, LOO)', 'DII_L1': 'DII + L1',
           'MINE': 'MINE', 'RF': 'Random Forest', 'LASSO': 'LASSO'}
@@ -88,8 +89,8 @@ methods_fig1 = methods + ['MINE', 'RF', 'LASSO']  # Figure 1 only (fuller method
 fig, axes = plt.subplots(1, 2, figsize=(17, 5.4))
 
 ax = axes[0]
-offsets = {'MI_perfeat': -3.6, 'II_perfeat': -2.4, 'II_joint': -1.2,
-           'DII_L1': 0, 'MINE': 1.2, 'RF': 2.4, 'LASSO': 3.6}
+offsets = {'MI_perfeat': -7.2, 'II_perfeat': -4.8, 'II_joint': -2.4,
+           'DII_L1': 0, 'MINE': 2.4, 'RF': 4.8, 'LASSO': 7.2}
 for method in methods_fig1:
     means, los, his, pts = [], [], [], []
     for p in p_levels:
@@ -111,6 +112,10 @@ ax.set_xlabel('Number of features $p$', fontsize=20)
 ax.set_ylabel("Kendall's $\\tau$\n(agreement with ground truth)", fontsize=20)
 ax.set_title('(a) Ranking accuracy: bootstrap 95% CI\n(x = full-sample point estimate)', fontsize=19)
 ax.axhline(0, color=GRAY, lw=0.8, ls=':')
+# Separator between per-feature methods (MI_perfeat, II_perfeat) and joint
+# methods (II_joint, DII_L1, MINE, RF, LASSO) -- see Figure 2 for rationale.
+for p in p_levels:
+    ax.axvline(p - 3.6, color=GRAY, lw=1, ls=':', zorder=0)
 ax.tick_params(axis='both', labelsize=17)
 legend_handles, legend_labels = ax.get_legend_handles_labels()
 
@@ -142,34 +147,52 @@ plt.close()
 print("Saved fig_scalability.{pdf,png}")
 
 # =============================================================================
-# FIGURE 2 — FRED-MD bootstrap advantage (4 methods x 4 K)
+# FIGURE 2 — FRED-MD bootstrap advantage (7 methods x 4 K)
 # =============================================================================
-# Reads: bootstrap_ci_fredmd_results.csv
+# Reads: bootstrap_ci_fredmd_results.csv (4 core methods, B=100/15)
+#        bootstrap_ci_fredmd_lasso_rf_results.csv (LASSO+RF, B=15, same
+#        target/protocol, added for a fair comparison against DII_L1)
+#        bootstrap_ci_fredmd_mine_results.csv (MINE, B=15, same protocol)
 # real columns: method, K, mean_advantage, ci_lo, ci_hi, std, frac_positive, B, robust
 
-fredmd = pd.read_csv('../fredmd/bootstrap_ci_fredmd_results.csv')
+fredmd_core = pd.read_csv('../fredmd/bootstrap_ci_fredmd_results.csv')
+fredmd_extra = pd.read_csv('../fredmd/bootstrap_ci_fredmd_lasso_rf_results.csv')
+fredmd_mine = pd.read_csv('../fredmd/bootstrap_ci_fredmd_mine_results.csv')
+fredmd = pd.concat([fredmd_core, fredmd_extra, fredmd_mine], ignore_index=True)
 K_values = sorted(fredmd.K.unique())
+methods_fig2 = methods + ['LASSO', 'RF', 'MINE']  # 4 core + LASSO + RF + MINE
 
-fig, ax = plt.subplots(figsize=(11, 4.2))
-width = 0.2
+fig, ax = plt.subplots(figsize=(16, 5.6))
+n_methods = len(methods_fig2)
+width = 0.115
 x = np.arange(len(K_values))
-for i, method in enumerate(methods):
+for i, method in enumerate(methods_fig2):
     means, los, his = [], [], []
     for k in K_values:
         row = fredmd[(fredmd.method == method) & (fredmd.K == k)]
         means.append(row.mean_advantage.values[0])
         los.append(row.mean_advantage.values[0] - row.ci_lo.values[0])
         his.append(row.ci_hi.values[0] - row.mean_advantage.values[0])
-    ax.bar(x + (i - 1.5) * width, means, width, color=COLORS[method],
+    ax.bar(x + (i - (n_methods - 1) / 2) * width, means, width, color=COLORS[method],
            label=LABELS[method], yerr=[los, his], capsize=3,
            error_kw=dict(elinewidth=1.3, capthick=1.3))
 ax.axhline(0, color='black', lw=1)
+# Separator between per-feature methods (MI_perfeat, II_perfeat) and joint
+# methods (II_joint, DII_L1, LASSO, RF, MINE) -- these are evaluated under
+# different procedures (independent per-feature scores vs. joint/LOO
+# importance), so the split makes that distinction visible rather than
+# implying a single uniform comparison.
+n_perfeat = 2
+boundary_offset = (n_perfeat - 0.5 - (n_methods - 1) / 2) * width
+for k_idx in x:
+    ax.axvline(k_idx + boundary_offset, color=GRAY, lw=1, ls=':', zorder=0)
 ax.set_xticks(x)
-ax.set_xticklabels([f'K={k}' for k in K_values])
-ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=14)
-ax.set_title('FRED-MD: bootstrap 95% CI on predictive advantage', pad=45)
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.22), frameon=False, ncol=4, fontsize=12)
-fig.subplots_adjust(left=0.12, right=0.98, top=0.72, bottom=0.15)
+ax.set_xticklabels([f'K={k}' for k in K_values], fontsize=15)
+ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=17)
+ax.tick_params(axis='y', labelsize=14)
+ax.set_title('FRED-MD: bootstrap 95% CI on predictive advantage', pad=55, fontsize=20)
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.30), frameon=False, ncol=4, fontsize=14)
+fig.subplots_adjust(left=0.09, right=0.98, top=0.64, bottom=0.13)
 plt.savefig('fig_fredmd.pdf')
 plt.savefig('fig_fredmd.png')
 plt.close()
@@ -178,16 +201,21 @@ print("Saved fig_fredmd.{pdf,png}")
 # =============================================================================
 # FIGURE 3 — Post-infarction complications: BH-survivors bootstrap CI
 # =============================================================================
-# Reads: bootstrap_ci_mi_survivors_results.csv
+# Reads: bootstrap_ci_mi_survivors_bh264_results.csv (12 configurations
+# surviving BH correction on the combined 264-test family: the original 176
+# tests for MI/II/DII/DII+L1, plus 88 new tests adding LASSO+RF on the same
+# 11 per-complication targets, same fair-comparison protocol as FRED-MD and
+# Trading. See post_infarction_per_target_lasso_rf.py / the combined BH step
+# for how this file was built.)
 # real columns: complication, method, K, mean_advantage, ci_lo, ci_hi, std,
 # frac_positive, B  (no 'label' or 'robust' column — both derived below)
 
-mi_surv = pd.read_csv('../post_infarction/bootstrap_ci_mi_survivors_results.csv')
+mi_surv = pd.read_csv('../post_infarction/bootstrap_ci_mi_survivors_bh264_results.csv')
 mi_surv['label'] = (mi_surv['complication'] + ' · ' + mi_surv['method']
                      + ' · K=' + mi_surv['K'].astype(str))
 mi_surv['robust'] = mi_surv['ci_lo'] > 0
 
-fig, ax = plt.subplots(figsize=(10, 3.8))
+fig, ax = plt.subplots(figsize=(10, 4.6))
 y_pos = np.arange(len(mi_surv))
 for i, row in mi_surv.iterrows():
     color = GREEN if row.robust else GRAY
@@ -198,7 +226,7 @@ ax.axvline(0, color='black', lw=1)
 ax.set_yticks(y_pos)
 ax.set_yticklabels(mi_surv.label.values, fontsize=12)
 ax.set_xlabel('Downstream accuracy advantage (bootstrap 95% CI)')
-ax.set_title('Post-infarction complications: all 7 configurations surviving\nBenjamini-Hochberg correction')
+ax.set_title('Post-infarction complications: all 12 configurations surviving\nBenjamini-Hochberg correction (264 tests, 6 methods)')
 ax.invert_yaxis()
 from matplotlib.lines import Line2D
 legend_elems = [Line2D([0], [0], marker='o', color='w', markerfacecolor=GREEN,
@@ -213,39 +241,53 @@ plt.close()
 print("Saved fig_mi_survivors.{pdf,png}")
 
 # =============================================================================
-# FIGURE 4 — Trading bootstrap advantage (4 methods x 4 K)
+# FIGURE 4 — Trading bootstrap advantage (7 methods x 4 K)
 # =============================================================================
-# Reads: bootstrap_ci_trading_results.csv (same schema as fredmd's file).
-# Same bar-chart style as Figure 2 for direct visual consistency across the
-# two real-data domains, but trading is NOT high-dimensional (p=27, vs
-# FRED-MD's p=120) and its CI is coarser: B=12 (B=8 for DII_L1) vs FRED-MD's
-# B=100 (B=15), because N=5000 makes the O(N^2) knn_loo_accuracy step in
-# every draw ~40x more expensive than on FRED-MD's N=794 — a documented,
-# unbiased trade-off (wider CI, not a distorted one), not an oversight.
+# Reads: bootstrap_ci_trading_results.csv (4 core methods, same schema as
+#        fredmd's file), bootstrap_ci_trading_lasso_rf_results.csv (LASSO+RF,
+#        B=15), bootstrap_ci_trading_mine_results.csv (MINE, B=15) — all
+#        added for a fair comparison against DII_L1, same target/protocol.
+# Trading is NOT high-dimensional (p=27, vs FRED-MD's p=120) and the core
+# methods' CI is coarser: B=100 (B=15 for DII_L1) is still used, but N=5000
+# makes the O(N^2) knn_loo_accuracy step in every draw ~40x more expensive
+# than on FRED-MD's N=794 — a documented, unbiased trade-off (wider CI, not
+# a distorted one), not an oversight.
 
-trading = pd.read_csv('../trading/bootstrap_ci_trading_results.csv')
+trading_core = pd.read_csv('../trading/bootstrap_ci_trading_results.csv')
+trading_extra = pd.read_csv('../trading/bootstrap_ci_trading_lasso_rf_results.csv')
+trading_mine = pd.read_csv('../trading/bootstrap_ci_trading_mine_results.csv')
+trading = pd.concat([trading_core, trading_extra, trading_mine], ignore_index=True)
 K_values_tr = sorted(trading.K.unique())
+methods_fig4 = methods + ['LASSO', 'RF', 'MINE']  # 4 core + LASSO + RF + MINE
 
-fig, ax = plt.subplots(figsize=(11, 4.2))
-width = 0.2
+fig, ax = plt.subplots(figsize=(16, 5.6))
+n_methods_tr = len(methods_fig4)
+width = 0.115
 x = np.arange(len(K_values_tr))
-for i, method in enumerate(methods):
+for i, method in enumerate(methods_fig4):
     means, los, his = [], [], []
     for k in K_values_tr:
         row = trading[(trading.method == method) & (trading.K == k)]
         means.append(row.mean_advantage.values[0])
         los.append(row.mean_advantage.values[0] - row.ci_lo.values[0])
         his.append(row.ci_hi.values[0] - row.mean_advantage.values[0])
-    ax.bar(x + (i - 1.5) * width, means, width, color=COLORS[method],
+    ax.bar(x + (i - (n_methods_tr - 1) / 2) * width, means, width, color=COLORS[method],
            label=LABELS[method], yerr=[los, his], capsize=3,
            error_kw=dict(elinewidth=1.3, capthick=1.3))
 ax.axhline(0, color='black', lw=1)
+# Separator between per-feature methods (MI_perfeat, II_perfeat) and joint
+# methods (II_joint, DII_L1, LASSO, RF, MINE) -- see Figure 2 for rationale.
+n_perfeat = 2
+boundary_offset_tr = (n_perfeat - 0.5 - (n_methods_tr - 1) / 2) * width
+for k_idx in x:
+    ax.axvline(k_idx + boundary_offset_tr, color=GRAY, lw=1, ls=':', zorder=0)
 ax.set_xticks(x)
-ax.set_xticklabels([f'K={k}' for k in K_values_tr])
-ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=14)
-ax.set_title('Trading (p=27): bootstrap 95% CI on predictive advantage', pad=45)
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.22), frameon=False, ncol=4, fontsize=12)
-fig.subplots_adjust(left=0.12, right=0.98, top=0.72, bottom=0.15)
+ax.set_xticklabels([f'K={k}' for k in K_values_tr], fontsize=15)
+ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=17)
+ax.tick_params(axis='y', labelsize=14)
+ax.set_title('Trading (p=27): bootstrap 95% CI on predictive advantage', pad=55, fontsize=20)
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.30), frameon=False, ncol=4, fontsize=14)
+fig.subplots_adjust(left=0.09, right=0.98, top=0.64, bottom=0.13)
 plt.savefig('fig_trading.pdf')
 plt.savefig('fig_trading.png')
 plt.close()

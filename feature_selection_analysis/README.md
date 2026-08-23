@@ -87,16 +87,21 @@ side by side.
   *robust* only if its CI excludes zero.
 - **Multiple-testing correction**: applied uniformly to all three real
   datasets.
-  Post-infarction complications tests 11 complications × 4 methods × 4
-  K values (176 tests): Benjamini–Hochberg correction leaves 7
-  survivors, of which only
-  3 are *also* bootstrap-robust. FRED-MD and trading each test 4 methods ×
+  Post-infarction complications tests 11 complications × 4 core methods × 4
+  K values (176 tests), plus 88 further tests adding LASSO and RF on the
+  same 11 targets for a fair comparison against DII+L1 (264 tests total):
+  Benjamini–Hochberg correction leaves 12 survivors, of which only
+  4 are *also* bootstrap-robust (all four involve ZSN, one of them LASSO).
+  FRED-MD and trading each test 4 core methods ×
   4 K values (16 tests): under the same BH correction, FRED-MD keeps 4/16
   (down from 6/16 raw p<0.05), and trading keeps **0/16** (down from 2/16
   raw p<0.05), trading's apparent signal does not survive correction for
-  testing 16 hypotheses. BH significance and CI-excludes-zero robustness
-  do not always agree, on any of the three datasets, which is reported
-  honestly rather than picking whichever criterion looks stronger.
+  testing 16 hypotheses. (LASSO, RF, and MINE were also added to FRED-MD
+  and trading's bootstrap-CI comparison — see Key findings below — but not
+  yet run through this p-value/BH layer.) BH significance and
+  CI-excludes-zero robustness do not always agree, on any of the three
+  datasets, which is reported honestly rather than picking whichever
+  criterion looks stronger.
 - **A stress-test of the uncertainty-quantification procedure itself**:
   the project's subsampling-based CIs are checked against the rescaled
   Politis-Romano-Wolf subsampling correction on the tightest-margin case
@@ -174,7 +179,12 @@ confirmatory evidence:
   margins were tight enough (ci_lo +0.004 and +0.006) that the
   correction's re-centring pushes them through zero. Trading's downstream
   signal is the weakest of the three real datasets by every criterion
-  applied.
+  applied. LASSO, RF, and MINE (added for a fair comparison against
+  DII+L1, B=15, same target/protocol) fare no better: RF and MINE stay
+  fragile at every K, and LASSO's CI is fragile at K=5/10/16 and
+  **robust-but-negative** at K=3 (−0.014 [−0.029, −0.001]) — the only
+  statistically robust result any of the three shows on this dataset is
+  a result *worse* than random.
 - **FRED-MD**: DII+L1's bootstrap CI excludes zero at all 4 K (advantage
   +0.03 to +0.13), independently re-confirmed under the Politis-Romano-Wolf
   resampling CI at all 4 K (see Scope, Design Choices &
@@ -184,9 +194,27 @@ confirmatory evidence:
   project's procedure, do not
   survive BH correction — and MI per-feature at K=5 additionally does not
   survive the Politis-Romano-Wolf resampling CI either (K=10 does).
-- **Post-infarction complications**: of 7 BH survivors, only 3 are also
-  bootstrap-robust, all involving the ZSN (cardiac) complication, via MI
-  per-feature (K=3, K=5) and DII+L1 (K=16).
+  LASSO (added for a fair comparison, same B=15/target/protocol) is
+  **bootstrap-robust at all 4 K** (+0.06 to +0.10), essentially matching
+  DII+L1's own range — the two are statistically indistinguishable here.
+  RF is robust only at K=10/16 (mirroring MI per-feature's pattern); MINE
+  is never robust (its mean advantage is even slightly negative at K=10
+  and K=16). None of LASSO/RF/MINE has yet been run through the p-value/BH
+  layer on this dataset (bootstrap CI only).
+- **Post-infarction complications**: extending the same fair-comparison
+  treatment here means testing LASSO and RF on all 11 per-complication
+  targets (not the aggregate "any complication" target, which is a
+  different, already-null target — see `bootstrap_ci_mi_aggregate_
+  lasso_rf.py` for that separate check), adding 88 tests to the original
+  176 (264 total). Under BH correction on this combined family, 12
+  configurations survive (up from 7), of which only 4 are also
+  bootstrap-robust, all involving the ZSN (cardiac) complication: MI
+  per-feature (K=3, K=5), DII+L1 (K=16), and now also LASSO (K=10,
+  +0.090 [0.056, 0.111]) — closely matching DII+L1's own ZSN result.
+  RF's ZSN result (K=3, K=5, K=10 all BH-significant) does not survive
+  the bootstrap-CI check. MINE was not extended to this dataset: at
+  B=15 across 11 complications the LOO-training cost is prohibitive
+  (~10 hours estimated), so it remains untested here.
 
 **Future work**: the joint-detection capability demonstrated in the
 present work, on synthetic and real data alike, suggests a natural
@@ -224,7 +252,8 @@ feature_selection_analysis/
 │   ├── lasso_synthetic_highdim.py          # LASSO baseline, p=27/50/105 (closest classical
 │   │                                        #   competitor to DII+L1: both rank via sparsity penalty)
 │   ├── subsampling_correction_check_synthetic.py  # Politis-Romano-Wolf spot-check, II-joint p=27
-│   └── coverage_check.py                   # frequentist coverage check (97.5% vs 70.0%)
+│   ├── coverage_check.py                   # frequentist coverage check (97.5% vs 70.0%)
+│   └── mine_diagnostics.py                 # MINE sensitivity: epochs sweep (100-1000), p=27
 │
 ├── fredmd/                    # macro-financial, N=794, p=120
 │   ├── 2026-07-MD.csv         # raw FRED-MD panel
@@ -233,7 +262,9 @@ feature_selection_analysis/
 │   ├── bh_correction_fredmd.py    # Benjamini-Hochberg on the 16 method x K tests
 │   ├── verify_fredmd_balanced.py
 │   ├── subsampling_correction_check.py     # Politis-Romano-Wolf spot-check, MI_perfeat, all 4 K
-│   └── subsampling_correction_check_dii.py # Politis-Romano-Wolf spot-check, DII+L1, all 4 K
+│   ├── subsampling_correction_check_dii.py # Politis-Romano-Wolf spot-check, DII+L1, all 4 K
+│   ├── bootstrap_ci_fredmd_lasso_rf.py     # LASSO+RF bootstrap CI, same target/protocol, B=15
+│   └── bootstrap_ci_fredmd_mine.py         # MINE bootstrap CI, same target/protocol, B=15
 │
 ├── post_infarction/          # clinical, N=1700, p=107
 │   ├── MI.data                # raw UCI/Leicester dataset
@@ -241,20 +272,30 @@ feature_selection_analysis/
 │   ├── post_infarction_per_target.py      # per-complication sweep (176 tests) + BH correction
 │   ├── post_infarction_rf_check.py
 │   ├── bootstrap_ci_mi_aggregate.py
-│   ├── bootstrap_mi_survivors.py           # bootstrap CI on the 7 BH survivors
+│   ├── bootstrap_mi_survivors.py           # bootstrap CI on the 7 core-method BH survivors
 │   ├── verify_mi_rf_balanced.py
 │   ├── reverify_balanced_accuracy.py
-│   └── subsampling_correction_check.py     # Politis-Romano-Wolf spot-check, the 3 ZSN survivors
+│   ├── subsampling_correction_check.py     # Politis-Romano-Wolf spot-check, the 3 ZSN survivors
+│   ├── bootstrap_ci_mi_aggregate_lasso_rf.py    # LASSO+RF on the AGGREGATE target (not the fair
+│   │                                             #   comparison used for Figure 4 — see below)
+│   ├── post_infarction_per_target_lasso_rf.py   # LASSO+RF p-values, all 11 per-complication targets
+│   └── bootstrap_ci_mi_survivors_lasso_rf.py    # LASSO+RF bootstrap CI, all 11 targets x 4 K (88
+│                                                 #   tests) — the fair-comparison extension feeding
+│                                                 #   the 264-test combined BH correction and Figure 4
 │
 ├── trading/                   # N=5000 (subsample of 440,402), p=27
 │   ├── train2.csv              # gitignored (110MB, over GitHub's 100MB limit)
 │   ├── real_data_analysis.py
 │   ├── trading_downstream_validation.py
 │   ├── bh_correction_trading.py   # Benjamini-Hochberg on the 16 method x K tests
-│   └── subsampling_correction_check_dii.py # Politis-Romano-Wolf spot-check, DII+L1, K=10/16
+│   ├── subsampling_correction_check_dii.py # Politis-Romano-Wolf spot-check, DII+L1, K=10/16
+│   ├── bootstrap_ci_trading_lasso_rf.py    # LASSO+RF bootstrap CI, same target/protocol, B=15
+│   └── bootstrap_ci_trading_mine.py        # MINE bootstrap CI, same target/protocol, B=15
 │
 ├── figures/                   # poster figures (matplotlib, PDF+PNG) + the scripts that build them
-│   ├── plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survivors, fig_trading
+│   ├── plot_poster_figures.py       # fig_scalability, fig_fredmd, fig_mi_survivors, fig_trading,
+│   │                                 #   fig_coverage — now 7 methods on FRED-MD/trading, 6 on
+│   │                                 #   post-infarction (MINE excluded there, cost-prohibitive)
 │   └── plot_real_data_comparison.py # combined 3-panel real-data figure
 │
 ├── future_work_real_assets/   # exploratory, NOT part of the poster or any reported result
