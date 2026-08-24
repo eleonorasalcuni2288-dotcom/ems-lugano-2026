@@ -21,17 +21,12 @@ import os
 
 mpl.rcParams.update({
     'font.family': 'sans-serif',
-    # Baseline sized for A0 print: figures are embedded at roughly native
-    # size or smaller (post-infarction/coverage), so this baseline targets
-    # >=20pt physical for body text at those scales. Figures embedded
-    # SMALLER than native (scalability, FRED-MD, trading) override these
-    # explicitly below with larger values to compensate.
-    'font.size': 19,
-    'axes.titlesize': 26,
-    'axes.labelsize': 22,
-    'legend.fontsize': 19,
-    'xtick.labelsize': 19,
-    'ytick.labelsize': 19,
+    'font.size': 15,
+    'axes.titlesize': 17,
+    'axes.labelsize': 16,
+    'legend.fontsize': 13,
+    'xtick.labelsize': 14,
+    'ytick.labelsize': 14,
     'axes.spines.top': False,
     'axes.spines.right': False,
     'figure.dpi': 300,
@@ -91,7 +86,7 @@ p_levels = [27, 50, 105]
 methods = ['MI_perfeat', 'II_perfeat', 'II_joint', 'DII_L1']  # used by Figures 2 & 3
 methods_fig1 = methods + ['MINE', 'RF', 'LASSO']  # Figure 1 only (fuller method coverage)
 
-fig, axes = plt.subplots(1, 2, figsize=(17, 10.5))
+fig, axes = plt.subplots(1, 2, figsize=(17, 5.4))
 
 ax = axes[0]
 offsets = {'MI_perfeat': -7.2, 'II_perfeat': -4.8, 'II_joint': -2.4,
@@ -113,15 +108,15 @@ for method in methods_fig1:
                 elinewidth=1.8, capthick=1.8)
     ax.scatter(x, pts, marker='x', color=COLORS[method], s=55, zorder=5)
 ax.set_xticks(p_levels)
-ax.set_xlabel('Number of features $p$', fontsize=32)
-ax.set_ylabel("Kendall's $\\tau$\n(agreement with ground truth)", fontsize=32)
-ax.set_title('(a) Ranking accuracy: bootstrap 95% CI\n(x = full-sample point estimate)', fontsize=30)
+ax.set_xlabel('Number of features $p$', fontsize=20)
+ax.set_ylabel("Kendall's $\\tau$\n(agreement with ground truth)", fontsize=20)
+ax.set_title('(a) Ranking accuracy: bootstrap 95% CI\n(x = full-sample point estimate)', fontsize=19)
 ax.axhline(0, color=GRAY, lw=0.8, ls=':')
 # Separator between per-feature methods (MI_perfeat, II_perfeat) and joint
 # methods (II_joint, DII_L1, MINE, RF, LASSO) -- see Figure 2 for rationale.
 for p in p_levels:
     ax.axvline(p - 3.6, color=GRAY, lw=1, ls=':', zorder=0)
-ax.tick_params(axis='both', labelsize=26)
+ax.tick_params(axis='both', labelsize=17)
 legend_handles, legend_labels = ax.get_legend_handles_labels()
 
 ax = axes[1]
@@ -137,14 +132,14 @@ for method in methods_fig1:
     ax.plot(p_levels, ranks, 'o-', color=COLORS[method], label=LABELS[method],
              markersize=7, linewidth=2)
 ax.set_xticks(p_levels)
-ax.set_xlabel('Number of features $p$', fontsize=32)
-ax.set_ylabel('Avg. synergy-pair rank\n(lower = correctly detected)', fontsize=32)
-ax.set_title('(b) Synergy-pair detection vs. dimensionality', fontsize=30)
-ax.tick_params(axis='both', labelsize=26)
+ax.set_xlabel('Number of features $p$', fontsize=20)
+ax.set_ylabel('Avg. synergy-pair rank\n(lower = correctly detected)', fontsize=20)
+ax.set_title('(b) Synergy-pair detection vs. dimensionality', fontsize=19)
+ax.tick_params(axis='both', labelsize=17)
 
-fig.subplots_adjust(left=0.09, right=0.98, top=0.78, bottom=0.11, wspace=0.4)
+fig.subplots_adjust(left=0.075, right=0.98, top=0.68, bottom=0.18, wspace=0.38)
 fig.legend(legend_handles, legend_labels, loc='upper center',
-           bbox_to_anchor=(0.5, 1.0), ncol=4, frameon=False, fontsize=27)
+           bbox_to_anchor=(0.5, 1.0), ncol=4, frameon=False, fontsize=16)
 
 plt.savefig('fig_scalability.pdf', bbox_inches='tight')
 plt.savefig('fig_scalability.png', bbox_inches='tight')
@@ -220,7 +215,7 @@ mi_surv['label'] = (mi_surv['complication'] + ' · ' + mi_surv['method']
                      + ' · K=' + mi_surv['K'].astype(str))
 mi_surv['robust'] = mi_surv['ci_lo'] > 0
 
-fig, ax = plt.subplots(figsize=(10, 8.5))
+fig, ax = plt.subplots(figsize=(10, 4.6))
 y_pos = np.arange(len(mi_surv))
 for i, row in mi_surv.iterrows():
     color = GREEN if row.robust else GRAY
@@ -229,18 +224,16 @@ for i, row in mi_surv.iterrows():
                 capsize=4, markersize=9, elinewidth=2, capthick=2)
 ax.axvline(0, color='black', lw=1)
 ax.set_yticks(y_pos)
-ax.set_yticklabels(mi_surv.label.values, fontsize=19)
-ax.set_xlabel('Downstream accuracy advantage (bootstrap 95% CI)', fontsize=22)
-ax.tick_params(axis='x', labelsize=19)
-ax.set_title('Post-infarction complications: all 12 configurations surviving\nBenjamini-Hochberg correction (264 tests, 6 methods)', fontsize=24)
+ax.set_yticklabels(mi_surv.label.values, fontsize=12)
+ax.set_xlabel('Downstream accuracy advantage (bootstrap 95% CI)')
+ax.set_title('Post-infarction complications: all 12 configurations surviving\nBenjamini-Hochberg correction (264 tests, 6 methods)')
 ax.invert_yaxis()
 from matplotlib.lines import Line2D
 legend_elems = [Line2D([0], [0], marker='o', color='w', markerfacecolor=GREEN,
-                        markersize=14, label='Robust (CI excludes 0)'),
+                        markersize=10, label='Robust (CI excludes 0)'),
                 Line2D([0], [0], marker='o', color='w', markerfacecolor=GRAY,
-                        markersize=14, label='Fragile (CI crosses 0)')]
-ax.legend(handles=legend_elems, loc='upper center', bbox_to_anchor=(0.5, -0.09),
-          ncol=2, frameon=False, fontsize=19)
+                        markersize=10, label='Fragile (CI crosses 0)')]
+ax.legend(handles=legend_elems, loc='lower right', frameon=False, fontsize=12)
 plt.tight_layout()
 plt.savefig('fig_mi_survivors.pdf', bbox_inches='tight')
 plt.savefig('fig_mi_survivors.png', bbox_inches='tight')
