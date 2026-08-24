@@ -187,11 +187,11 @@ boundary_offset = (n_perfeat - 0.5 - (n_methods - 1) / 2) * width
 for k_idx in x:
     ax.axvline(k_idx + boundary_offset, color=GRAY, lw=1, ls=':', zorder=0)
 ax.set_xticks(x)
-ax.set_xticklabels([f'K={k}' for k in K_values], fontsize=15)
-ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=17)
-ax.tick_params(axis='y', labelsize=14)
-ax.set_title('FRED-MD: bootstrap 95% CI on predictive advantage', pad=55, fontsize=20)
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.30), frameon=False, ncol=4, fontsize=14)
+ax.set_xticklabels([f'K={k}' for k in K_values], fontsize=17)
+ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=20)
+ax.tick_params(axis='y', labelsize=17)
+ax.set_title('FRED-MD: bootstrap 95% CI on predictive advantage', pad=55, fontsize=23)
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.30), frameon=False, ncol=4, fontsize=16)
 fig.subplots_adjust(left=0.09, right=0.98, top=0.64, bottom=0.13)
 plt.savefig('fig_fredmd.pdf')
 plt.savefig('fig_fredmd.png')
@@ -215,7 +215,7 @@ mi_surv['label'] = (mi_surv['complication'] + ' · ' + mi_surv['method']
                      + ' · K=' + mi_surv['K'].astype(str))
 mi_surv['robust'] = mi_surv['ci_lo'] > 0
 
-fig, ax = plt.subplots(figsize=(10, 4.6))
+fig, ax = plt.subplots(figsize=(10, 4.1))
 y_pos = np.arange(len(mi_surv))
 for i, row in mi_surv.iterrows():
     color = GREEN if row.robust else GRAY
@@ -226,7 +226,7 @@ ax.axvline(0, color='black', lw=1)
 ax.set_yticks(y_pos)
 ax.set_yticklabels(mi_surv.label.values, fontsize=12)
 ax.set_xlabel('Downstream accuracy advantage (bootstrap 95% CI)', fontsize=14)
-ax.set_title('Post-infarction complications: all 12 configurations surviving\nBenjamini-Hochberg correction (264 tests, 6 methods)', fontsize=15)
+fig.suptitle('Post-infarction complications: all 12 configurations surviving\nBenjamini-Hochberg correction (264 tests, 6 methods)', fontsize=15)
 ax.invert_yaxis()
 from matplotlib.lines import Line2D
 legend_elems = [Line2D([0], [0], marker='o', color='w', markerfacecolor=GREEN,
@@ -282,11 +282,11 @@ boundary_offset_tr = (n_perfeat - 0.5 - (n_methods_tr - 1) / 2) * width
 for k_idx in x:
     ax.axvline(k_idx + boundary_offset_tr, color=GRAY, lw=1, ls=':', zorder=0)
 ax.set_xticks(x)
-ax.set_xticklabels([f'K={k}' for k in K_values_tr], fontsize=15)
-ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=17)
-ax.tick_params(axis='y', labelsize=14)
-ax.set_title('Trading (p=27): bootstrap 95% CI on predictive advantage', pad=55, fontsize=20)
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.30), frameon=False, ncol=4, fontsize=14)
+ax.set_xticklabels([f'K={k}' for k in K_values_tr], fontsize=17)
+ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=20)
+ax.tick_params(axis='y', labelsize=17)
+ax.set_title('Trading (p=27): bootstrap 95% CI on predictive advantage', pad=55, fontsize=23)
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.30), frameon=False, ncol=4, fontsize=16)
 fig.subplots_adjust(left=0.09, right=0.98, top=0.64, bottom=0.13)
 plt.savefig('fig_trading.pdf')
 plt.savefig('fig_trading.png')
@@ -319,18 +319,19 @@ for ax, lo_col, hi_col, cov_col, title in panels:
     colors = np.where(cov[cov_col], GREEN, RED)
     ax.hlines(y, cov[lo_col], cov[hi_col], color=colors, linewidth=1.8)
     ax.axvline(theta_true, color='black', lw=1.3, ls='--', zorder=0)
-    ax.set_title(title, fontsize=14)
-    ax.set_xlabel(r"Kendall's $\tau$ (II-joint, p=27)")
-axes[0].set_ylabel('Independent replication')
+    ax.set_title(title, fontsize=16)
+    ax.set_xlabel(r"Kendall's $\tau$ (II-joint, p=27)", fontsize=16)
+    ax.tick_params(axis='both', labelsize=14)
+axes[0].set_ylabel('Independent replication', fontsize=16)
 axes[0].set_yticks([])
 fig.suptitle(r'Frequentist coverage: 40 independent 95% CIs vs. $\theta_{true}$='
-             + f'{theta_true}', y=1.02, fontsize=15)
+             + f'{theta_true}', y=1.02, fontsize=18)
 from matplotlib.lines import Line2D
 legend_elems = [Line2D([0], [0], color=GREEN, lw=2.5, label='Contains θ_true'),
                 Line2D([0], [0], color=RED, lw=2.5, label='Misses θ_true'),
                 Line2D([0], [0], color='black', lw=1.3, ls='--', label='θ_true')]
 fig.legend(handles=legend_elems, loc='upper center', bbox_to_anchor=(0.5, 0.02),
-           ncol=3, frameon=False, fontsize=12)
+           ncol=3, frameon=False, fontsize=13)
 fig.tight_layout()
 plt.savefig('fig_coverage.pdf', bbox_inches='tight')
 plt.savefig('fig_coverage.png', bbox_inches='tight')
