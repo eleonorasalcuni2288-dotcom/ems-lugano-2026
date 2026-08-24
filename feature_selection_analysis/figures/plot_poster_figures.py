@@ -225,8 +225,8 @@ for i, row in mi_surv.iterrows():
 ax.axvline(0, color='black', lw=1)
 ax.set_yticks(y_pos)
 ax.set_yticklabels(mi_surv.label.values, fontsize=12)
-ax.set_xlabel('Downstream accuracy advantage (bootstrap 95% CI)')
-ax.set_title('Post-infarction complications: all 12 configurations surviving\nBenjamini-Hochberg correction (264 tests, 6 methods)')
+ax.set_xlabel('Downstream accuracy advantage (bootstrap 95% CI)', fontsize=14)
+ax.set_title('Post-infarction complications: all 12 configurations surviving\nBenjamini-Hochberg correction (264 tests, 6 methods)', fontsize=15)
 ax.invert_yaxis()
 from matplotlib.lines import Line2D
 legend_elems = [Line2D([0], [0], marker='o', color='w', markerfacecolor=GREEN,
