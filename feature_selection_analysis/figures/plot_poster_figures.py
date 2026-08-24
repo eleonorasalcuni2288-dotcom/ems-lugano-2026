@@ -21,12 +21,17 @@ import os
 
 mpl.rcParams.update({
     'font.family': 'sans-serif',
-    'font.size': 15,
-    'axes.titlesize': 17,
-    'axes.labelsize': 16,
-    'legend.fontsize': 13,
-    'xtick.labelsize': 14,
-    'ytick.labelsize': 14,
+    # Baseline sized for A0 print: figures are embedded at roughly native
+    # size or smaller (post-infarction/coverage), so this baseline targets
+    # >=20pt physical for body text at those scales. Figures embedded
+    # SMALLER than native (scalability, FRED-MD, trading) override these
+    # explicitly below with larger values to compensate.
+    'font.size': 19,
+    'axes.titlesize': 26,
+    'axes.labelsize': 22,
+    'legend.fontsize': 19,
+    'xtick.labelsize': 19,
+    'ytick.labelsize': 19,
     'axes.spines.top': False,
     'axes.spines.right': False,
     'figure.dpi': 300,
@@ -86,7 +91,7 @@ p_levels = [27, 50, 105]
 methods = ['MI_perfeat', 'II_perfeat', 'II_joint', 'DII_L1']  # used by Figures 2 & 3
 methods_fig1 = methods + ['MINE', 'RF', 'LASSO']  # Figure 1 only (fuller method coverage)
 
-fig, axes = plt.subplots(1, 2, figsize=(17, 5.4))
+fig, axes = plt.subplots(1, 2, figsize=(17, 10.5))
 
 ax = axes[0]
 offsets = {'MI_perfeat': -7.2, 'II_perfeat': -4.8, 'II_joint': -2.4,
@@ -108,15 +113,15 @@ for method in methods_fig1:
                 elinewidth=1.8, capthick=1.8)
     ax.scatter(x, pts, marker='x', color=COLORS[method], s=55, zorder=5)
 ax.set_xticks(p_levels)
-ax.set_xlabel('Number of features $p$', fontsize=20)
-ax.set_ylabel("Kendall's $\\tau$\n(agreement with ground truth)", fontsize=20)
-ax.set_title('(a) Ranking accuracy: bootstrap 95% CI\n(x = full-sample point estimate)', fontsize=19)
+ax.set_xlabel('Number of features $p$', fontsize=32)
+ax.set_ylabel("Kendall's $\\tau$\n(agreement with ground truth)", fontsize=32)
+ax.set_title('(a) Ranking accuracy: bootstrap 95% CI\n(x = full-sample point estimate)', fontsize=30)
 ax.axhline(0, color=GRAY, lw=0.8, ls=':')
 # Separator between per-feature methods (MI_perfeat, II_perfeat) and joint
 # methods (II_joint, DII_L1, MINE, RF, LASSO) -- see Figure 2 for rationale.
 for p in p_levels:
     ax.axvline(p - 3.6, color=GRAY, lw=1, ls=':', zorder=0)
-ax.tick_params(axis='both', labelsize=17)
+ax.tick_params(axis='both', labelsize=26)
 legend_handles, legend_labels = ax.get_legend_handles_labels()
 
 ax = axes[1]
@@ -132,14 +137,14 @@ for method in methods_fig1:
     ax.plot(p_levels, ranks, 'o-', color=COLORS[method], label=LABELS[method],
              markersize=7, linewidth=2)
 ax.set_xticks(p_levels)
-ax.set_xlabel('Number of features $p$', fontsize=20)
-ax.set_ylabel('Avg. synergy-pair rank\n(lower = correctly detected)', fontsize=20)
-ax.set_title('(b) Synergy-pair detection vs. dimensionality', fontsize=19)
-ax.tick_params(axis='both', labelsize=17)
+ax.set_xlabel('Number of features $p$', fontsize=32)
+ax.set_ylabel('Avg. synergy-pair rank\n(lower = correctly detected)', fontsize=32)
+ax.set_title('(b) Synergy-pair detection vs. dimensionality', fontsize=30)
+ax.tick_params(axis='both', labelsize=26)
 
-fig.subplots_adjust(left=0.075, right=0.98, top=0.68, bottom=0.18, wspace=0.38)
+fig.subplots_adjust(left=0.09, right=0.98, top=0.78, bottom=0.11, wspace=0.4)
 fig.legend(legend_handles, legend_labels, loc='upper center',
-           bbox_to_anchor=(0.5, 1.0), ncol=4, frameon=False, fontsize=16)
+           bbox_to_anchor=(0.5, 1.0), ncol=4, frameon=False, fontsize=27)
 
 plt.savefig('fig_scalability.pdf', bbox_inches='tight')
 plt.savefig('fig_scalability.png', bbox_inches='tight')
@@ -162,7 +167,7 @@ fredmd = pd.concat([fredmd_core, fredmd_extra, fredmd_mine], ignore_index=True)
 K_values = sorted(fredmd.K.unique())
 methods_fig2 = methods + ['LASSO', 'RF', 'MINE']  # 4 core + LASSO + RF + MINE
 
-fig, ax = plt.subplots(figsize=(16, 5.6))
+fig, ax = plt.subplots(figsize=(20, 11))
 n_methods = len(methods_fig2)
 width = 0.115
 x = np.arange(len(K_values))
@@ -187,12 +192,12 @@ boundary_offset = (n_perfeat - 0.5 - (n_methods - 1) / 2) * width
 for k_idx in x:
     ax.axvline(k_idx + boundary_offset, color=GRAY, lw=1, ls=':', zorder=0)
 ax.set_xticks(x)
-ax.set_xticklabels([f'K={k}' for k in K_values], fontsize=15)
-ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=17)
-ax.tick_params(axis='y', labelsize=14)
-ax.set_title('FRED-MD: bootstrap 95% CI on predictive advantage', pad=55, fontsize=20)
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.30), frameon=False, ncol=4, fontsize=14)
-fig.subplots_adjust(left=0.09, right=0.98, top=0.64, bottom=0.13)
+ax.set_xticklabels([f'K={k}' for k in K_values], fontsize=28)
+ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=32)
+ax.tick_params(axis='y', labelsize=26)
+ax.set_title('FRED-MD: bootstrap 95% CI on predictive advantage', pad=65, fontsize=38)
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.55), frameon=False, ncol=4, fontsize=26)
+fig.subplots_adjust(left=0.13, right=0.98, top=0.60, bottom=0.11)
 plt.savefig('fig_fredmd.pdf')
 plt.savefig('fig_fredmd.png')
 plt.close()
@@ -215,7 +220,7 @@ mi_surv['label'] = (mi_surv['complication'] + ' · ' + mi_surv['method']
                      + ' · K=' + mi_surv['K'].astype(str))
 mi_surv['robust'] = mi_surv['ci_lo'] > 0
 
-fig, ax = plt.subplots(figsize=(10, 4.6))
+fig, ax = plt.subplots(figsize=(10, 8.5))
 y_pos = np.arange(len(mi_surv))
 for i, row in mi_surv.iterrows():
     color = GREEN if row.robust else GRAY
@@ -224,16 +229,18 @@ for i, row in mi_surv.iterrows():
                 capsize=4, markersize=9, elinewidth=2, capthick=2)
 ax.axvline(0, color='black', lw=1)
 ax.set_yticks(y_pos)
-ax.set_yticklabels(mi_surv.label.values, fontsize=12)
-ax.set_xlabel('Downstream accuracy advantage (bootstrap 95% CI)')
-ax.set_title('Post-infarction complications: all 12 configurations surviving\nBenjamini-Hochberg correction (264 tests, 6 methods)')
+ax.set_yticklabels(mi_surv.label.values, fontsize=19)
+ax.set_xlabel('Downstream accuracy advantage (bootstrap 95% CI)', fontsize=22)
+ax.tick_params(axis='x', labelsize=19)
+ax.set_title('Post-infarction complications: all 12 configurations surviving\nBenjamini-Hochberg correction (264 tests, 6 methods)', fontsize=24)
 ax.invert_yaxis()
 from matplotlib.lines import Line2D
 legend_elems = [Line2D([0], [0], marker='o', color='w', markerfacecolor=GREEN,
-                        markersize=10, label='Robust (CI excludes 0)'),
+                        markersize=14, label='Robust (CI excludes 0)'),
                 Line2D([0], [0], marker='o', color='w', markerfacecolor=GRAY,
-                        markersize=10, label='Fragile (CI crosses 0)')]
-ax.legend(handles=legend_elems, loc='lower right', frameon=False, fontsize=12)
+                        markersize=14, label='Fragile (CI crosses 0)')]
+ax.legend(handles=legend_elems, loc='upper center', bbox_to_anchor=(0.5, -0.09),
+          ncol=2, frameon=False, fontsize=19)
 plt.tight_layout()
 plt.savefig('fig_mi_survivors.pdf', bbox_inches='tight')
 plt.savefig('fig_mi_survivors.png', bbox_inches='tight')
@@ -260,7 +267,7 @@ trading = pd.concat([trading_core, trading_extra, trading_mine], ignore_index=Tr
 K_values_tr = sorted(trading.K.unique())
 methods_fig4 = methods + ['LASSO', 'RF', 'MINE']  # 4 core + LASSO + RF + MINE
 
-fig, ax = plt.subplots(figsize=(16, 5.6))
+fig, ax = plt.subplots(figsize=(20, 11))
 n_methods_tr = len(methods_fig4)
 width = 0.115
 x = np.arange(len(K_values_tr))
@@ -282,12 +289,12 @@ boundary_offset_tr = (n_perfeat - 0.5 - (n_methods_tr - 1) / 2) * width
 for k_idx in x:
     ax.axvline(k_idx + boundary_offset_tr, color=GRAY, lw=1, ls=':', zorder=0)
 ax.set_xticks(x)
-ax.set_xticklabels([f'K={k}' for k in K_values_tr], fontsize=15)
-ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=17)
-ax.tick_params(axis='y', labelsize=14)
-ax.set_title('Trading (p=27): bootstrap 95% CI on predictive advantage', pad=55, fontsize=20)
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.30), frameon=False, ncol=4, fontsize=14)
-fig.subplots_adjust(left=0.09, right=0.98, top=0.64, bottom=0.13)
+ax.set_xticklabels([f'K={k}' for k in K_values_tr], fontsize=28)
+ax.set_ylabel('Downstream advantage\n(method $-$ random baseline)', fontsize=32)
+ax.tick_params(axis='y', labelsize=26)
+ax.set_title('Trading (p=27): bootstrap 95% CI on predictive advantage', pad=65, fontsize=38)
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.55), frameon=False, ncol=4, fontsize=26)
+fig.subplots_adjust(left=0.13, right=0.98, top=0.60, bottom=0.11)
 plt.savefig('fig_trading.pdf')
 plt.savefig('fig_trading.png')
 plt.close()
@@ -319,18 +326,19 @@ for ax, lo_col, hi_col, cov_col, title in panels:
     colors = np.where(cov[cov_col], GREEN, RED)
     ax.hlines(y, cov[lo_col], cov[hi_col], color=colors, linewidth=1.8)
     ax.axvline(theta_true, color='black', lw=1.3, ls='--', zorder=0)
-    ax.set_title(title, fontsize=14)
-    ax.set_xlabel(r"Kendall's $\tau$ (II-joint, p=27)")
-axes[0].set_ylabel('Independent replication')
+    ax.set_title(title, fontsize=25)
+    ax.set_xlabel(r"Kendall's $\tau$ (II-joint, p=27)", fontsize=25)
+    ax.tick_params(axis='both', labelsize=21)
+axes[0].set_ylabel('Independent replication', fontsize=25)
 axes[0].set_yticks([])
 fig.suptitle(r'Frequentist coverage: 40 independent 95% CIs vs. $\theta_{true}$='
-             + f'{theta_true}', y=1.02, fontsize=15)
+             + f'{theta_true}', y=1.05, fontsize=29)
 from matplotlib.lines import Line2D
 legend_elems = [Line2D([0], [0], color=GREEN, lw=2.5, label='Contains θ_true'),
                 Line2D([0], [0], color=RED, lw=2.5, label='Misses θ_true'),
                 Line2D([0], [0], color='black', lw=1.3, ls='--', label='θ_true')]
-fig.legend(handles=legend_elems, loc='upper center', bbox_to_anchor=(0.5, 0.02),
-           ncol=3, frameon=False, fontsize=12)
+fig.legend(handles=legend_elems, loc='upper center', bbox_to_anchor=(0.5, 0.0),
+           ncol=3, frameon=False, fontsize=23)
 fig.tight_layout()
 plt.savefig('fig_coverage.pdf', bbox_inches='tight')
 plt.savefig('fig_coverage.png', bbox_inches='tight')
